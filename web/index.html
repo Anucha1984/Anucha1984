@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0A0E1F" />
+    <title>นิทานสตูดิโอ — สร้างวิดีโอพากย์ไทยด้วย Claude ในคำสั่งเดียว</title>
+    <meta name="description" content="พิมพ์ไอเดียบรรทัดเดียว Claude เขียนบท วาดภาพ พากย์ไทย และตัดต่อเป็นวิดีโอแนวตั้ง 9:16 ให้ครบ" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/kanit/kanit-thai-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/sarabun/sarabun-thai-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/views.css" />
+    <script type="module" src="/js/app.js"></script>
+  </head>
+  <body data-genre="folktale">
+    <a class="skip-link" href="#view">ข้ามไปยังเนื้อหา</a>
+
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="#/create" aria-label="นิทานสตูดิโอ หน้าแรก">
+          <span class="brand-mark" id="brand-mark"></span>
+          <span class="brand-text">
+            <span class="brand-name">นิทานสตูดิโอ</span>
+            <span class="brand-sub">NiThan Studio</span>
+          </span>
+        </a>
+        <nav class="nav" aria-label="เมนูหลัก">
+          <a class="nav-link" href="#/create" data-nav="create"><span class="nav-icon" data-icon="spark"></span><span>สร้าง</span></a>
+          <a class="nav-link" href="#/library" data-nav="library"><span class="nav-icon" data-icon="grid"></span><span>คลังวิดีโอ</span></a>
+        </nav>
+      </div>
+      <div class="garland" aria-hidden="true"></div>
+    </header>
+
+    <main id="view" class="view" tabindex="-1"></main>
+
+    <footer class="footer">
+      <p>บท ภาพ และเสียงสร้างโดย Claude · ทำงานบนเครื่องคุณ ไฟล์อยู่ในโฟลเดอร์ <code>output/</code></p>
+    </footer>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <noscript><p class="noscript">นิทานสตูดิโอต้องเปิดใช้ JavaScript</p></noscript>
+  </body>
+</html>
