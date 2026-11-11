@@ -1,0 +1,25 @@
+{
+  "name": "nithan",
+  "version": "0.1.0",
+  "description": "NiThan Studio — สร้างวิดีโอแนวตั้งพากย์ไทยด้วย Claude ในคำสั่งเดียว (ซีรีส์จีนแนวตั้ง / การ์ตูนผีเล่มละบาท / นิทานพื้นบ้าน)",
+  "type": "module",
+  "bin": { "nithan": "bin/nithan.js" },
+  "scripts": {
+    "studio": "node src/server/index.js",
+    "create": "node bin/nithan.js",
+    "test": "node --test test/"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "@fontsource/kanit": "^5.0.0",
+    "@fontsource/sarabun": "^5.0.0",
+    "@fontsource/charm": "^5.0.0",
+    "@fontsource/chakra-petch": "^5.0.0",
+    "@fontsource/mitr": "^5.0.0"
+  },
+  "optionalDependencies": {
+    "playwright": "^1.48.0"
+  },
+  "license": "MIT"
+}
