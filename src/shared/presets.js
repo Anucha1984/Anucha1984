@@ -64,6 +64,32 @@ export const GENRES = {
 
 /** @type {Record<string, import('./schema.js').StylePreset>} */
 export const STYLES = {
+  realistic: {
+    id: 'realistic',
+    name: 'ภาพสมจริง',
+    subtitle: 'Cinematic Realistic',
+    swatch: ['#E8B36A', '#B5483A', '#3F6B73', '#0E1116'],
+    needsImageModel: true,
+    art: 'Semi-realistic cinematic digital painting with realistic proportions, detailed faces and dramatic lighting.',
+    photo:
+      'Photorealistic cinematic still, like a frame from a Thai feature film: real human proportions and skin texture, ' +
+      'natural Thai faces, detailed fabric and environment, moody practical lighting (street lamps, candles, moonlight), ' +
+      'wet reflective surfaces, volumetric haze, shallow depth of field, 35mm lens, subtle film grain, rich colour grade. ' +
+      'Not a cartoon, not anime, not flat illustration.',
+  },
+  'dark-fantasy': {
+    id: 'dark-fantasy',
+    name: 'สยองสมจริง',
+    subtitle: 'Dark Fantasy Realism',
+    swatch: ['#F2C14E', '#7A1E1E', '#1E3A4C', '#07090D'],
+    needsImageModel: true,
+    art: 'Hyper-detailed dark fantasy digital painting with realistic anatomy, eerie glow and deep shadows.',
+    photo:
+      'Hyper-detailed dark-fantasy realism, like a high-end horror game concept render: lifelike anatomy and textures, ' +
+      'ornate Thai costume and jewellery rendered bead by bead, pale or desiccated ghost skin, glowing eyes, ' +
+      'night scene lit by candles, lanterns and a crescent moon, old Thai wooden houses and temple roofs in the background, ' +
+      'thick atmosphere, strong rim light, deep blacks, cinematic contrast. Eerie but not gory. Not a cartoon.',
+  },
   pixar: {
     id: 'pixar',
     name: '3D แอนิเมชัน',
@@ -174,5 +200,6 @@ export function resolveOptions(input = {}) {
     // series support: pass the previous episode's storyboard.series to continue the story
     series: input.series || null,
     model: input.model || null,
+    image: input.image || null, // auto | claude | gemini | openai (see engine/image.js)
   };
 }

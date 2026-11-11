@@ -32,6 +32,8 @@ export async function loadStoryboard(projectDir) {
 export async function createVideo(input, onProgress) {
   const opts = resolveOptions(input);
   if (!opts.prompt) throw new Error('กรุณาใส่ชื่อเรื่องหรือไอเดีย (prompt)');
+  // fail before spending a script call if the chosen style needs an image model that is not configured
+  if (!opts.mock) (await import('./engine/image.js')).pickImageProvider(opts.image, opts.style);
   const id = slugify(input.id || opts.prompt);
   const projectDir = path.resolve(opts.outDir, id);
   await fs.mkdir(projectDir, { recursive: true });
@@ -63,7 +65,7 @@ export async function createVideo(input, onProgress) {
       );
     } else {
       const { generateArt } = await import('./engine/index.js');
-      await generateArt(sb, projectDir, { onProgress: pArt, model: opts.model });
+      await generateArt(sb, projectDir, { onProgress: pArt, model: opts.model, image: opts.image });
     }
     await saveStoryboard(sb, projectDir);
 

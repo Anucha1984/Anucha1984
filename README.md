@@ -20,7 +20,26 @@ Claude เขียนบทภาษาไทย วาดภาพทุกฉ
 ## ลายเส้น (`--style`)
 
 `pixar` (3D แอนิเมชัน) · `comic-us` (คอมิกอเมริกัน) · `china` (มังฮวาจีน) · `korea` (เว็บตูนเกาหลี) ·
+`realistic` (ภาพสมจริง) · `dark-fantasy` (สยองสมจริง) ·
 `thai` (จิตรกรรมไทย) · `thai-retro` (การ์ตูนเล่มละบาท) · `anime` (อนิเมะญี่ปุ่น)
+
+### ภาพสมจริง (ไม่ใช่การ์ตูน)
+
+ลายเส้น `realistic` (ภาพสมจริงแบบหนัง) และ `dark-fantasy` (สยองสมจริง) ใช้โมเดลสร้างภาพวาดแทน Claude
+โดย Claude ยังเขียนบทและกำกับภาพทุกฉากเหมือนเดิม ต้องตั้งค่าคีย์อย่างใดอย่างหนึ่ง:
+
+| ผู้ให้บริการ | ตั้งค่า | เปลี่ยนโมเดล |
+|---|---|---|
+| Google Gemini | `GEMINI_API_KEY` | `NITHAN_GEMINI_IMAGE_MODEL` (ค่าเริ่มต้น `gemini-2.5-flash-image`) |
+| OpenAI | `OPENAI_API_KEY` | `NITHAN_OPENAI_IMAGE_MODEL` (ค่าเริ่มต้น `gpt-image-1`) |
+
+```bash
+export GEMINI_API_KEY=...
+nithan "ผีนางรำหลังโรงลิเก" --genre ghost --style dark-fantasy
+```
+
+`--image auto|claude|gemini|openai` เลือกผู้วาดเอง (`auto` = ใช้คีย์ที่มี ถ้าไม่มีคีย์ใช้ Claude วาดเวกเตอร์)
+เมื่อมีคีย์ ลายเส้นการ์ตูนอื่น ๆ ก็จะวาดด้วยโมเดลภาพเช่นกัน ใส่ `--image claude` ถ้าอยากได้เวกเตอร์
 
 ## ติดตั้ง
 

@@ -133,7 +133,7 @@ function publicPresets() {
     Object.fromEntries(Object.entries(table).map(([k, v]) => [k, Object.fromEntries(Object.entries(v).filter(([f]) => !drop.includes(f)))]));
   return {
     genres: strip(GENRES, ['writing']),
-    styles: strip(STYLES, ['art']),
+    styles: strip(STYLES, ['art', 'photo']),
     lengths: LENGTHS,
     defaults: DEFAULTS,
     cameraMoves: CAMERA_MOVES,

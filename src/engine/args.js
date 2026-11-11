@@ -8,6 +8,7 @@ const VALUE_FLAGS = {
   '--length': 'length', '-l': 'length',
   '--scenes': 'scenes', '-n': 'scenes',
   '--tts': 'tts',
+  '--image': 'image',
   '--out': 'outDir', '-o': 'outDir',
   '--continue': 'continueDir', '-c': 'continueDir',
   '--model': 'model',
@@ -112,6 +113,7 @@ export function helpText() {
                 (ค่าเริ่มต้นตามแนวเรื่อง)
   --length, -l  ความยาว: short (~45 วิ) | medium (~90 วิ) | long (~3 นาที)
   --scenes, -n  กำหนดจำนวนฉากเอง 3–30
+  --image       ผู้วาดภาพ: auto | claude | gemini | openai (ภาพสมจริงต้องใช้ gemini หรือ openai)
   --tts         เสียงพากย์: ${TTS.join(' | ')}
   --no-music    ไม่ใส่ดนตรีประกอบ
   --out, -o     โฟลเดอร์เก็บผลงาน (ค่าเริ่มต้น output)

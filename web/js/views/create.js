@@ -129,7 +129,7 @@ export function mountCreate(root, { presets }) {
     styleInputs.set(s.id, input);
     recoTags.set(s.id, reco);
     styleGrid.append(
-      h('label', { class: 'pick' }, input, h('span', { class: 'style-card' }, h('span', { class: 'style-thumb' }, svg(styleThumb(s))), h('span', { class: 'style-body' }, h('span', { class: 'style-name' }, s.name), h('span', { class: 'style-sub' }, s.subtitle))), reco, h('span', { class: 'tick' }, svg(ICONS.check))),
+      h('label', { class: 'pick' }, input, h('span', { class: 'style-card' }, h('span', { class: 'style-thumb' }, svg(styleThumb(s))), h('span', { class: 'style-body' }, h('span', { class: 'style-name' }, s.name), h('span', { class: 'style-sub' }, s.needsImageModel ? s.subtitle + ' · ใช้ API ภาพ' : s.subtitle))), reco, h('span', { class: 'tick' }, svg(ICONS.check))),
     );
   }
 

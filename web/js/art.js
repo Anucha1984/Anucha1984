@@ -134,6 +134,32 @@ const SHOULDERS = 'M14 150c0-24 16-36 46-36s46 12 46 36z';
 const NECK = 'M51 98h18v20c-6 5-12 5-18 0z';
 
 const THUMBS = {
+  realistic: ([a, b, c, d]) => `${open()}
+    <defs><radialGradient id="rl" cx="50%" cy="22%" r="70%"><stop offset="0" stop-color="${a}"/><stop offset=".45" stop-color="${c}"/><stop offset="1" stop-color="${d}"/></radialGradient>
+    <linearGradient id="rs" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E7B58C"/><stop offset="1" stop-color="#7A4A32"/></linearGradient>
+    <filter id="rb"><feGaussianBlur stdDeviation="5"/></filter></defs>
+    <rect width="${W}" height="${H}" fill="url(#rl)"/>
+    <circle cx="26" cy="30" r="12" fill="${a}" opacity=".7" filter="url(#rb)"/><circle cx="98" cy="46" r="9" fill="${b}" opacity=".7" filter="url(#rb)"/>
+    <path d="M14 150c2-26 20-36 46-36s44 10 46 36z" fill="#14181F"/>
+    <path d="M50 96h20v22H50z" fill="url(#rs)"/>
+    <ellipse cx="60" cy="74" rx="22" ry="27" fill="url(#rs)"/>
+    <path d="M37 70c-2-24 10-36 24-36 15 0 26 12 23 36-4-12-12-18-24-19-11 0-18 7-23 19z" fill="#0C0D10"/>
+    <path d="M60 47c12 4 20 14 22 30-1 16-10 24-22 24z" fill="#000" opacity=".28"/>
+    <rect width="${W}" height="10" fill="#000"/><rect y="${H - 10}" width="${W}" height="10" fill="#000"/>
+  </svg>`,
+  'dark-fantasy': ([a, b, c, d]) => `${open()}
+    <defs><radialGradient id="dg" cx="50%" cy="45%" r="60%"><stop offset="0" stop-color="${c}"/><stop offset="1" stop-color="${d}"/></radialGradient>
+    <filter id="db"><feGaussianBlur stdDeviation="4"/></filter></defs>
+    <rect width="${W}" height="${H}" fill="url(#dg)"/>
+    <path d="M92 20a13 13 0 1 0 10 22 16 16 0 0 1-10-22z" fill="#E9E4D0"/>
+    <path d="M0 120l18-22 10 8 8-20 8 34z" fill="#06080B"/><path d="M84 120l10-30 8 12 18-16v34z" fill="#06080B"/>
+    <path d="M38 150c-4-40 6-58 22-58s26 18 22 58z" fill="#0A0C10"/>
+    <path d="M40 60c0-30 8-42 20-42s20 12 20 42c0 30-6 60-8 80H48c-2-20-8-50-8-80z" fill="#0B0B0E"/>
+    <ellipse cx="60" cy="62" rx="14" ry="19" fill="#9FB0AE"/>
+    <circle cx="54" cy="60" r="6" fill="${a}" opacity=".6" filter="url(#db)"/><circle cx="66" cy="60" r="6" fill="${a}" opacity=".6" filter="url(#db)"/>
+    <circle cx="54" cy="60" r="2.600" fill="${a}"/><circle cx="66" cy="60" r="2.600" fill="${a}"/>
+    <path d="M53 72c4 4 10 4 14 0" stroke="${b}" stroke-width="2" fill="none"/>
+  </svg>`,
   pixar: ([a, b, c, d]) => `${open()}
     <defs>
       <radialGradient id="px-bg" cx="50%" cy="35%" r="80%"><stop offset="0" stop-color="${c}"/><stop offset="1" stop-color="${d}"/></radialGradient>

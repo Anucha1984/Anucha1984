@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { STYLES } from '../shared/presets.js';
 import { mockSvg } from '../shared/mock.js';
+import { generateRasterArt, pickImageProvider } from './image.js';
 import { complete } from './llm.js';
 
 export const ART_WIDTH = 1080;
@@ -217,7 +218,10 @@ async function drawScene(sb, scene, index, { model, llm, effort }) {
  * @param {string} projectDir
  * @param {{onProgress?:Function, model?:string, concurrency?:number, only?:string[], effort?:string, llm?:Function}} [opts]
  */
-export async function generateArt(sb, projectDir, { onProgress, model, concurrency = 4, only, effort = process.env.NITHAN_ART_EFFORT || 'medium', llm = complete } = {}) {
+export async function generateArt(sb, projectDir, { onProgress, model, concurrency = 4, only, effort = process.env.NITHAN_ART_EFFORT || 'medium', llm = complete, image } = {}) {
+  // photoreal styles (or an explicit --image provider) are painted by an image model instead of Claude SVG
+  const provider = llm === complete ? pickImageProvider(image, sb.style) : 'claude';
+  if (provider !== 'claude') return generateRasterArt(sb, projectDir, provider, { onProgress, only });
   const dir = path.join(projectDir, 'scenes');
   await fs.mkdir(dir, { recursive: true });
   sb.scenes.forEach((s, i) => (s.id ||= `s${String(i + 1).padStart(2, '0')}`));
@@ -240,6 +244,7 @@ export async function generateArt(sb, projectDir, { onProgress, model, concurren
         fatal = err; // no backend / bad key: stop everything, the caller must know
         return;
       }
+      for (const f of await fs.readdir(dir)) if (f.startsWith(scene.id + '.') && !f.endsWith('.svg')) await fs.rm(path.join(dir, f));
       const rel = `scenes/${scene.id}.svg`;
       await fs.writeFile(path.join(projectDir, rel), result.svg);
       // a redraw may replace art that had another extension
