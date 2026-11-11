@@ -121,6 +121,10 @@ function parseSeries(s) {
     episode: Math.max(1, Math.min(999, Math.floor(Number(s.episode)) || 1)),
     summary: cleanText(s.summary, 2000),
     nextHook: cleanText(s.nextHook, 500),
+    characters: (Array.isArray(s.characters) ? s.characters : [])
+      .filter((c) => c && typeof c === 'object')
+      .slice(0, 20)
+      .map((c) => ({ id: cleanText(c.id, 60), name: cleanText(c.name, 120), voice: cleanText(c.voice, 30), visual: cleanText(c.visual, 600) })),
   };
 }
 
@@ -157,7 +161,7 @@ export function createApp({ outDir } = {}) {
     const ascii = input.prompt.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 20);
     const idSeed = `${ascii || 'reel'}-${crypto.randomBytes(2).toString('hex')}`;
     const meta = { prompt: input.prompt, length: input.length, tts: input.tts, music: input.music, mock: input.mock };
-    const job = queue.add({ kind, title: input.prompt, input: { ...input, series: input.series ? { title: input.series.title, episode: input.series.episode } : null } }, async (emit) => {
+    const job = queue.add({ kind, title: input.prompt, input }, async (emit) => {
       let metaWritten = false;
       const onProgress = (ev) => {
         const pid = ev?.detail?.storyboard?.id;
@@ -305,7 +309,13 @@ export function createApp({ outDir } = {}) {
         const sb = await store.load(id);
         const meta = await store.readMeta(id);
         const opts = await renderOpts(id, body);
-        const series = parseSeries(sb.series) ?? { title: cleanText(sb.title, 200), episode: 1, summary: cleanText(sb.logline, 2000), nextHook: '' };
+        const series = parseSeries({
+          title: sb.series?.title || sb.title,
+          episode: sb.series?.episode,
+          summary: sb.series?.summary || sb.logline,
+          nextHook: sb.series?.nextHook,
+          characters: sb.series?.characters || sb.characters,
+        });
         const input = parseJobInput({
           prompt: typeof body.prompt === 'string' && body.prompt.trim() ? body.prompt : series.title,
           genre: sb.genre,

@@ -4,7 +4,7 @@ import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { GENRES } from '../shared/presets.js';
 import { chunkCaption, timeChunks, tokenize, visibleLength, CAPTION_MAX } from './captions.js';
-import { fontFaceCss, fontScale, resolveFont } from './fonts.js';
+import { fontFaceCss, fontFatten, fontLineHeight, fontScale, resolveFont } from './fonts.js';
 import { renderOverlayItems, screenshotHtml } from './browser.js';
 import { HEIGHT, TIMING, WIDTH } from './timeline.js';
 import { escapeHtml } from './util.js';
@@ -37,14 +37,15 @@ ${fontFaceCss(font)}
 *{box-sizing:border-box}
 .stage{font-family:'${font}','Kanit',sans-serif;color:#fff;font-weight:700;font-synthesis:none}
 .w{white-space:nowrap}
-.ol{display:grid;text-align:center;text-wrap:balance;line-height:1.36}
+.ol{display:grid;text-align:center;text-wrap:balance;line-height:${fontLineHeight(font)}}
 .ol>span{grid-area:1/1}
 .ol-s{color:#07070c;-webkit-text-stroke:var(--stroke,14px) #07070c;stroke-linejoin:round;text-shadow:0 8px 18px rgba(0,0,0,.6)}
-.ol-f{position:relative}
+.ol-f{position:relative;-webkit-text-stroke:${fontFatten(font)}px currentColor}
+.badge,.endbadge,.chip,.label{-webkit-text-stroke:${fontFatten(font) / 2}px currentColor}
 
 /* captions */
 .cap{position:absolute;left:${CAPTION_BOX.left}px;width:${CAPTION_BOX.width}px;bottom:${SAFE.bottom}px;
-  display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 14px 26px}
+  display:flex;flex-direction:column;align-items:center;gap:6px;padding:48px 14px 30px}
 .cap .ol{font-size:${px(68)};letter-spacing:.3px}
 .cap.long .ol{font-size:${px(60)}}
 .cap.talk .ol-f{color:#FFF6D6}
@@ -57,7 +58,7 @@ ${fontFaceCss(font)}
   background:linear-gradient(180deg,rgba(5,5,10,.82) 0%,rgba(5,5,10,.62) 45%,rgba(5,5,10,0) 100%)}
 .badge{font-size:${px(44)};line-height:1.2;padding:10px 40px 12px;border-radius:999px;background:${accent};color:#0b0b12;
   box-shadow:0 8px 22px rgba(0,0,0,.45);white-space:nowrap}
-.hook{--stroke:18px;line-height:1.3;max-width:920px}
+.hook{--stroke:18px;max-width:920px}
 .hook .ol-f{color:#fff}
 .bar{width:220px;height:10px;border-radius:5px;background:${accent};box-shadow:0 4px 14px rgba(0,0,0,.5)}
 .sub{--stroke:11px;font-size:${px(54)};max-width:880px}

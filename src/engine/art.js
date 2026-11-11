@@ -88,6 +88,7 @@ What is being said over this image (context only — do NOT render any of it as 
 - This must read as a finished illustration by a professional, not a diagram or icon. Characters are properly drawn people/creatures: correct proportions for the style, a clear gesture/pose with bent limbs and weight, clothing with folds and shading, hands with fingers, hair as shaped masses with strands/highlights.
 - Faces carry the emotion: eyes with sclera, iris, pupil and highlight; eyelids and eyebrows angled for the expression; nose; mouth shaped for the emotion; shadow under the jaw. Never blank or dot-and-line faces, never stick figures, never bare geometric blobs.
 - Draw organic forms with <path> bezier curves (C/S/Q); use circles/rects only where things really are round or square.
+- Heads and bodies have natural, organic contours (rounded skull, tapered jaw, neck narrower than the head, sloping shoulders) — never boxy, rectangular or mask-like heads. Keep any grain/paper texture overlay subtle (opacity ≤ 0.15) so it never muddies the drawing.
 - One clear light source with a consistent direction: gradients for form, cast shadows on the ground and across figures, a rim light or glow separating the subject from the background, and a vignette to focus the eye.
 - Add 2–4 specific, recognisable props/setting details from the art direction so the place and era are unmistakable.
 - Absolutely NO text of any kind: no <text>, letters, numbers, signs, captions, speech bubbles, signatures or watermark.
@@ -216,7 +217,7 @@ async function drawScene(sb, scene, index, { model, llm, effort }) {
  * @param {string} projectDir
  * @param {{onProgress?:Function, model?:string, concurrency?:number, only?:string[], effort?:string, llm?:Function}} [opts]
  */
-export async function generateArt(sb, projectDir, { onProgress, model, concurrency = 4, only, effort = process.env.NITHAN_ART_EFFORT, llm = complete } = {}) {
+export async function generateArt(sb, projectDir, { onProgress, model, concurrency = 4, only, effort = process.env.NITHAN_ART_EFFORT || 'medium', llm = complete } = {}) {
   const dir = path.join(projectDir, 'scenes');
   await fs.mkdir(dir, { recursive: true });
   sb.scenes.forEach((s, i) => (s.id ||= `s${String(i + 1).padStart(2, '0')}`));

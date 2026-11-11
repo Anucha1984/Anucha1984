@@ -81,7 +81,11 @@ export function chunkCaption(text, max = CAPTION_MAX) {
       len += lens[i];
       if (len > max && best >= 0) break;
       // cost: distance from the balanced target; a space is a much nicer place to cut
-      const cost = Math.abs(len - target) - (tokens[i].spaceAfter ? target * 0.35 : 0);
+      // … and never strand a number away from its word ("ตอนที่ | 3")
+      const isNum = (t) => Boolean(t) && /^[\d๐-๙]/.test(t.text);
+      const digits =
+        isNum(tokens[i + 1]) || /[\d๐-๙]$/.test(tokens[i].text) || (isNum(tokens[i + 2]) && visibleLength(tokens[i + 1].text) <= 3);
+      const cost = Math.abs(len - target) - (tokens[i].spaceAfter ? target * 0.35 : 0) + (digits ? target : 0);
       if (cost < bestCost) {
         bestCost = cost;
         best = i;

@@ -23,6 +23,8 @@ const SCALE = { Charm: 1.2, Sarabun: 1.04, 'Chakra Petch': 1.0, Kanit: 1.0, Mitr
 
 export const fontSlug = (family) => String(family).trim().toLowerCase().replace(/\s+/g, '-');
 export const fontScale = (family) => SCALE[family] ?? 1;
+/** Extra px of same-colour stroke on the fill, to thicken hairline faces so tone marks survive the dark outline. */
+export const fontFatten = (family) => (family === 'Charm' ? 2.4 : 0);
 
 function fontDir(slug) {
   const candidates = [];
@@ -72,3 +74,5 @@ export function fontFaceCss(family, weights = [400, 700]) {
   cache.set(key, css);
   return css;
 }
+/** Line height that leaves room for stacked Thai vowels + tone marks (script faces need more). */
+export const fontLineHeight = (family) => (family === 'Charm' ? 1.5 : 1.38);

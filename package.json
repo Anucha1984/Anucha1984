@@ -7,7 +7,7 @@
   "scripts": {
     "studio": "node src/server/index.js",
     "create": "node bin/nithan.js",
-    "test": "node --test test/"
+    "test": "node --test"
   },
   "engines": { "node": ">=20" },
   "dependencies": {

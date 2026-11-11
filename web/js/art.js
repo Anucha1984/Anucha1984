@@ -14,7 +14,7 @@ export const ICONS = {
   mic: icon('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.500 11a6.500 6.500 0 0013 0M12 17.500V21M9 21h6"/>'),
   clapper: icon('<path d="M3.500 9h17v10a1.500 1.500 0 01-1.500 1.500H5A1.500 1.500 0 013.500 19z"/><path d="M3.500 9l-.5-3L19.500 3l.5 3zM8 4.800l1.800 3.600M13 3.900l1.800 3.600"/>'),
   copy: icon('<rect x="8.500" y="8.500" width="11" height="11" rx="2"/><path d="M5.500 15.500h-1a1 1 0 01-1-1v-10a1 1 0 011-1h10a1 1 0 011 1v1"/>'),
-  check: icon('<path d="M5 12.500l4.500 4.500L19 7.500"/>', 'stroke-width="2.400"'),
+  check: icon('<path d="M5 12.500l4.500 4.500L19 7.500" stroke-width="2.600"/>'),
   trash: icon('<path d="M4 7h16M9.500 7V4.500h5V7M6.500 7l.8 12a1.500 1.500 0 001.500 1.400h6.400a1.500 1.500 0 001.500-1.400l.8-12M10 11v6M14 11v6"/>'),
   download: icon('<path d="M12 4v11M7.500 11l4.500 4.500 4.500-4.500M5 19.500h14"/>'),
   play: icon('<path d="M8 5.500v13l11-6.500z" fill="currentColor"/>'),

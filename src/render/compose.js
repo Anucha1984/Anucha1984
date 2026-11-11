@@ -11,35 +11,50 @@ export const RASTER = { width: Math.round(WIDTH * RASTER_SCALE), height: Math.ro
 
 const X264 = ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-r', String(FPS), '-g', String(FPS * 2), '-video_track_timescale', '15360'];
 
-// Ken Burns: zoom (z) and view centre (cx, cy as fractions of the frame), start → end.
-const Z = 1.16;
-const M = (1 - 1 / 1.14) / 2; // max centre offset at zoom 1.14
+// Ken Burns moves. Zooms go from z[0] to z[1] around the centre; pans slide a fixed-zoom window
+// along dx/dy (-1 = left/top end of the travel, +1 = right/bottom end).
+const PAN_Z = 1.14;
 const MOVES = {
-  'zoom-in': { z: [1.0, Z], cx: [0.5, 0.5], cy: [0.5, 0.48] },
-  'zoom-out': { z: [Z, 1.0], cx: [0.5, 0.5], cy: [0.48, 0.5] },
-  'pan-left': { z: [1.14, 1.14], cx: [0.5 + M, 0.5 - M], cy: [0.5, 0.5] },
-  'pan-right': { z: [1.14, 1.14], cx: [0.5 - M, 0.5 + M], cy: [0.5, 0.5] },
-  'pan-up': { z: [1.14, 1.14], cx: [0.5, 0.5], cy: [0.5 + M, 0.5 - M] },
-  'pan-down': { z: [1.14, 1.14], cx: [0.5, 0.5], cy: [0.5 - M, 0.5 + M] },
-  static: { z: [1.0, 1.03], cx: [0.5, 0.5], cy: [0.5, 0.5] },
+  'zoom-in': { z: [1.0, 1.16] },
+  'zoom-out': { z: [1.16, 1.0] },
+  static: { z: [1.0, 1.03] },
+  'pan-left': { dx: [1, -1] },
+  'pan-right': { dx: [-1, 1] },
+  'pan-up': { dy: [1, -1] },
+  'pan-down': { dy: [-1, 1] },
 };
 
 /**
- * Sub-pixel accurate camera move as a `perspective` filter (evaluated per frame, bilinear sampling),
- * which avoids the integer-rounding jitter of zoompan. Progress p = (frame + offset) / total.
+ * Filter chain turning one still (already on the input pad) into `frames` moving 1080×1920 yuv444p frames.
+ * No zoompan (its integer rounding makes the picture shake):
+ *  - zoom: the whole frame is rescaled every frame to an even size and centre-cropped with exact
+ *    integer offsets, so the centre never moves and the edges are at most half a pixel off;
+ *  - pan: the still is upscaled once to 2× the output, a 2× window slides in whole (super-sampled)
+ *    pixels = half output pixels, then is scaled down.
+ * Progress p = (n + offsetFrames) / totalFrames, so a scene's move can continue into the next clip's crossfade.
  */
-export function cameraFilter(camera, totalFrames, offsetFrames = 0) {
+export function cameraFilter(camera, frames, totalFrames, offsetFrames = 0) {
   const mv = MOVES[camera] ?? MOVES['zoom-in'];
-  const p = `((on+${offsetFrames})/${Math.max(1, totalFrames)})`;
-  const lerp = ([a, b]) => (a === b ? num(a, 5) : `(${num(a, 5)}+${num(b - a, 5)}*${p})`);
-  const z = lerp(mv.z);
-  const cx = lerp(mv.cx);
-  const cy = lerp(mv.cy);
-  const l = `W*(${cx}-0.5/${z})`;
-  const r = `W*(${cx}+0.5/${z})`;
-  const t = `H*(${cy}-0.5/${z})`;
-  const b = `H*(${cy}+0.5/${z})`;
-  return `perspective=x0='${l}':y0='${t}':x1='${r}':y1='${t}':x2='${l}':y2='${b}':x3='${r}':y3='${b}':sense=source:interpolation=linear:eval=frame`;
+  const p = `((n+${offsetFrames})/${Math.max(1, totalFrames)})`;
+  const hold = `loop=loop=-1:size=1,trim=end_frame=${frames}`;
+  if (mv.z) {
+    const z = `(${num(mv.z[0], 5)}+${num(mv.z[1] - mv.z[0], 5)}*${p})`;
+    const hw = `round(${WIDTH / 2}*${z})`;
+    const hh = `round(${HEIGHT / 2}*${z})`;
+    return (
+      `format=yuv444p,${hold},scale=w='2*${hw}':h='2*${hh}':eval=frame:flags=bicubic,` +
+      `crop=${WIDTH}:${HEIGHT}:x='${hw}-${WIDTH / 2}':y='${hh}-${HEIGHT / 2}':exact=1`
+    );
+  }
+  const bw = 2 * Math.round(WIDTH * PAN_Z);
+  const bh = 2 * Math.round(HEIGHT * PAN_Z);
+  const mx = (bw - 2 * WIDTH) / 2;
+  const my = (bh - 2 * HEIGHT) / 2;
+  const axis = (range, m) => (range ? `'round(${num(m * (1 + range[0]), 2)}+${num(m * (range[1] - range[0]), 2)}*${p})'` : Math.round(m));
+  return (
+    `scale=${bw}:${bh}:flags=bicubic,format=yuv444p,${hold},` +
+    `crop=${2 * WIDTH}:${2 * HEIGHT}:x=${axis(mv.dx, mx)}:y=${axis(mv.dy, my)}:exact=1,scale=${WIDTH}:${HEIGHT}:flags=bilinear`
+  );
 }
 
 /**
@@ -59,8 +74,7 @@ export function sceneClipArgs({ frame, camera, frames, prev, hasNext, overlays =
   const inputs = ['-framerate', String(FPS), '-i', frame];
   const graph = [];
   const still = (idx, n, cam, total, off, label) =>
-    `[${idx}:v]format=yuv420p,loop=loop=-1:size=1,trim=end_frame=${n},${cameraFilter(cam, total, off)},` +
-    `scale=${WIDTH}:${HEIGHT}:flags=bicubic,setsar=1,setpts=N/(${FPS}*TB)[${label}]`;
+    `[${idx}:v]${cameraFilter(cam, n, total, off)},setsar=1,setpts=N/(${FPS}*TB)[${label}]`;
   // this scene keeps moving through the next clip's crossfade → total motion length includes it
   graph.push(still(0, frames, camera, frames + (hasNext ? xf : 0), 0, 'cur'));
   let base = 'cur';
@@ -77,17 +91,23 @@ export function sceneClipArgs({ frame, camera, frames, prev, hasNext, overlays =
     const a = Math.max(0, ov.start);
     const b = Math.min(dur, ov.end);
     let src = `${nIn}:v`;
+    let eof = 'repeat';
     if (ov.fade) {
+      // a faded card is a short stream that only exists while it is on screen (cheap for full-frame cards)
       const fi = ov.fadeIn ?? 0.3;
       const fo = 0.35;
-      const chain = [`format=rgba`, `loop=loop=-1:size=1`, `trim=end_frame=${frames}`, `setpts=N/(${FPS}*TB)`];
-      if (fi > 0) chain.push(`fade=t=in:st=${num(a)}:d=${num(fi)}:alpha=1`);
+      const n = Math.max(1, Math.round((b - a) * FPS));
+      const len = n / FPS;
+      const chain = [`format=rgba`, `loop=loop=-1:size=1`, `trim=end_frame=${n}`, `setpts=N/(${FPS}*TB)`];
+      if (fi > 0) chain.push(`fade=t=in:st=0:d=${num(fi)}:alpha=1`);
       // no fade-out when the card runs to the very end of the video (the global fade handles it)
-      if (b < dur - 0.05) chain.push(`fade=t=out:st=${num(b - fo)}:d=${num(fo)}:alpha=1`);
+      if (b < dur - 0.05) chain.push(`fade=t=out:st=${num(len - fo)}:d=${num(fo)}:alpha=1`);
+      chain.push(`setpts=PTS+${num(a)}/TB`);
       graph.push(`[${nIn}:v]${chain.join(',')}[f${k}]`);
       src = `f${k}`;
+      eof = 'pass';
     }
-    graph.push(`[${base}][${src}]overlay=x=${ov.x}:y=${ov.y}:eof_action=repeat:enable='between(t,${num(a)},${num(b)})'[o${k}]`);
+    graph.push(`[${base}][${src}]overlay=x=${ov.x}:y=${ov.y}:format=yuv444:eof_action=${eof}:enable='between(t,${num(a)},${num(b)})'[o${k}]`);
     base = `o${k}`;
     nIn++;
   });
