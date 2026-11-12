@@ -10,35 +10,75 @@
 body{width:720px;height:1280px;overflow:hidden;background:#06060f;font-family:K;color:#fff}
 #bg,#fx,#st{position:absolute;inset:0}
 .abs{position:absolute}
+.fill{position:absolute;inset:0}
 .c{position:absolute;left:0;width:720px;text-align:center}
 .gold{color:#f2c45a}
 .card{background:#101a3acc;border:2px solid;border-radius:18px}
 .chip{display:inline-block;padding:10px 26px;border-radius:999px;font-weight:600;font-size:34px;margin:8px}
 .en{font-size:46px;font-weight:800;color:#f2c45a;margin:0 .22em}
 .sub{position:absolute;left:40px;width:640px;top:835px;text-align:center;font-size:34px;font-weight:600;line-height:1.5;text-shadow:0 3px 10px #000,0 0 3px #000}
+.pill{background:rgba(6,8,26,.62);padding:3px 18px;border-radius:18px;line-height:1.95;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 </style>
 <div id="bg"></div><canvas id="fx" width="720" height="1280"></canvas><div id="st"></div>
-<script src="scenes.js"></script><script src="timings.js"></script>
+<script src="scenes.js"></script><script src="timings.js"></script><script src="style.js"></script>
 <script>
 const W=720;
 let acc=0; SCENES.forEach((s,i)=>{const T=(window.TIMINGS||[])[i];if(T)s.dur=T.dur;s.t0=acc;acc+=s.dur;
   const tot=s.subs.reduce((a,x)=>a+x.length+3,0);let p=0;s.pt=s.subs.map(x=>{const r=p/tot*s.dur;p+=x.length+3;return r});if(T)s.pt=T.pt.slice();s.pt.push(s.dur)});
 const TOTAL=acc; window.TOTAL=TOTAL;
-// seeded stars
-let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
-const stars=[...Array(90)].map(()=>({x:rnd()*720,y:rnd()*1280,r:rnd()*1.6+.4,p:rnd()*6,s:rnd()*8+3}));
+
+/* ───────── style system ─────────
+   A "look" = one coherent family of choices (background, camera, transition, entrance,
+   layout, decorations, subtitle). The look rotates with the episode number; inside an
+   episode, camera and transition are drawn at random from the look's small pools.
+   Override from scenes.js with window.STYLE_PRESET='<name>' or window.STYLE={...}. */
+const PRESETS={
+  classic:     {bg:'stars', cam:['none'],          trans:['fade'],          enter:'spring', layout:'left',   deco:[],                  sub:'plain'},
+  'tech-grid': {bg:'grid',  cam:['drift'],         trans:['slide','fade'],  enter:'rise',   layout:'left',   deco:['corners','sweep'], sub:'plain'},
+  cinematic:   {bg:'bokeh', cam:['push','drift'],  trans:['zoom','iris'],   enter:'blur',   layout:'center', deco:['sweep'],           sub:'pill'},
+  'bold-pop':  {bg:'stars', cam:['pan'],           trans:['wipe','slide'],  enter:'spring', layout:'band',   deco:['burst','sweep'],   sub:'pill'},
+  'neon-flash':{bg:'rings', cam:['drift','push'],  trans:['flash','zoom'],  enter:'spring', layout:'left',   deco:['corners','burst'], sub:'plain'}
+};
+const ROTATION=['tech-grid','cinematic','bold-pop','neon-flash'];
+function hash(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const SLUG=window.STYLE_SEED||'000-default';
+const PNAME=window.STYLE_PRESET||ROTATION[(parseInt(SLUG)||hash(SLUG))%ROTATION.length];
+const ST=Object.assign({},PRESETS[PNAME]||PRESETS.classic,window.STYLE||{});
+const sr=mulberry(hash(SLUG)), pick=a=>a[Math.floor(sr()*a.length)];
+const NS=SCENES.length;
+SCENES.forEach(s=>{s._cam=pick(ST.cam)});
+const TR=[...Array(Math.max(0,NS-1))].map(()=>pick(ST.trans));            // TR[i] = transition between scene i and i+1
+const LAYOUT=SCENES.some(s=>s.stat)?'left':ST.layout;                     // stat cards need the left layout's geometry
+window.LOOK={preset:PNAME,style:ST,trans:TR,cams:SCENES.map(s=>s._cam),layout:LAYOUT};
+
+const stars=(()=>{const r=mulberry(7);return[...Array(90)].map(()=>({x:r()*720,y:r()*1280,r:r()*1.6+.4,p:r()*6,s:r()*8+3}))})();
+const bokeh=(()=>{const r=mulberry(11);return[...Array(14)].map(()=>({x:r()*720,y:r()*1400,r:40+r()*90,sp:6+r()*14,p:r()*6,g:r()<.35}))})();
+const burstP=(()=>{const r=mulberry(5);return[...Array(18)].map((_,i)=>({a:i/18*6.283+r()*.3,v:140+r()*200,r:3+r()*4,g:r()<.5}))})();
 const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 const eo=x=>1-Math.pow(1-cl(x),3);
+const ss=x=>{x=cl(x);return x*x*(3-2*x)};
 const back=x=>{x=cl(x);const c=2.2;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
-// pop-in style: at local time lt since t0
-function pop(lt,t0,d=.35){const x=(lt-t0)/d;if(x<=0)return'opacity:0;';return`opacity:${cl(x*3)};transform:scale(${back(x).toFixed(3)});`}
-function rise(lt,t0,d=.4){const x=(lt-t0)/d;if(x<=0)return'opacity:0;';return`opacity:${cl(x*2)};transform:translateY(${((1-eo(x))*40).toFixed(1)}px);`}
+const ENTER={
+  spring:{pop:x=>`opacity:${cl(x*3)};transform:scale(${back(x).toFixed(3)});`,
+          rise:x=>`opacity:${cl(x*2)};transform:translateY(${((1-eo(x))*40).toFixed(1)}px);`},
+  rise:  {pop:x=>`opacity:${cl(x*2.5)};transform:translateY(${((1-eo(x))*34).toFixed(1)}px);`,
+          rise:x=>`opacity:${cl(x*2)};transform:translateY(${((1-eo(x))*54).toFixed(1)}px);`},
+  blur:  {pop:x=>`opacity:${cl(x*2)};filter:blur(${((1-eo(x))*14).toFixed(1)}px);transform:scale(${(1+(1-eo(x))*.08).toFixed(3)});`,
+          rise:x=>`opacity:${cl(x*2)};filter:blur(${((1-eo(x))*10).toFixed(1)}px);transform:translateY(${((1-eo(x))*24).toFixed(1)}px);`}
+};
+function pop(lt,t0,d=.35){const x=(lt-t0)/d;if(x<=0)return'opacity:0;';return ENTER[ST.enter].pop(x)}
+function rise(lt,t0,d=.4){const x=(lt-t0)/d;if(x<=0)return'opacity:0;';return ENTER[ST.enter].rise(x)}
 function hexa(h,a){const n=parseInt(h.slice(1),16);return`rgba(${n>>16},${n>>8&255},${n&255},${a})`}
 const ph=(s,i,f=0)=>s.pt[i]+f*(s.pt[i+1]-s.pt[i]);
+const sweep=(lt,tp)=>{if(!ST.deco.includes('sweep'))return'';const x=(lt-tp-.3)/.8;return x>0&&x<1?`<div style="position:absolute;top:0;bottom:0;left:${(-30+x*150).toFixed(1)}%;width:28%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);transform:skewX(-20deg)"></div>`:''};
 
 function header(s,lt){
   const NT=SCENES.filter(x=>x.id==='tool').length;const lab=s.id==='tool'?`${s.label||'อันดับ'} ${s.rank}/${NT}`:s.chip;
-  return lab?`<div class="abs" style="left:40px;top:92px;background:${s.color};color:#fff;font-size:22px;font-weight:600;padding:3px 16px;border-radius:999px;${pop(lt,0.05)}transform-origin:left center">${lab}</div>`:'';
+  const chip=`display:inline-block;background:${s.color};color:#fff;font-size:22px;font-weight:600;padding:3px 16px;border-radius:999px;`;
+  if(!lab)return'';
+  return LAYOUT==='center'?`<div class="c" style="top:92px;${pop(lt,0.05)}"><span style="${chip}">${lab}</span></div>`
+    :`<div class="abs" style="left:40px;top:92px;${chip}${pop(lt,0.05)}transform-origin:left center">${lab}</div>`;
 }
 function hook(s,lt){
   const cols=SCENES.filter(x=>x.id==='tool');
@@ -50,10 +90,23 @@ function hook(s,lt){
   return h;
 }
 function tool(s,lt){
-  let h=`<div class="abs" style="left:40px;top:140px;width:120px;height:120px;border-radius:60px;background:${s.color};border:5px solid #fff;font-size:76px;font-weight:800;text-align:center;line-height:108px;${pop(lt,0)}">${s.rank}</div>
-  <div class="abs" style="left:184px;top:128px;font-size:${s.bigSize||76}px;font-weight:800;line-height:1.25;white-space:nowrap;${rise(lt,.08,.3)}">${s.big||s.en.split(' ')[0]}</div>
-  <div class="abs" style="left:188px;top:232px;font-size:28px;font-weight:600;color:${s.color};${rise(lt,.2,.3)}">${s.small||(s.th+(s.en.includes('Google')?' · Google':''))}</div>`;
-  let y=320;
+  const L=s.stat?'left':LAYOUT, bs=s.bigSize||76, big=s.big||s.en.split(' ')[0], small=s.small||(s.th+(s.en.includes('Google')?' · Google':''));
+  const badge=(left,top)=>`<div class="abs" style="left:${left}px;top:${top}px;width:120px;height:120px;border-radius:60px;background:${s.color};border:5px solid #fff;font-size:76px;font-weight:800;text-align:center;line-height:108px;${pop(lt,0)}">${s.rank}</div>`;
+  let h='',y=320;
+  if(L==='center'){
+    const ny=258,sy=ny+bs*1.25+2;
+    h=badge(300,128)+`<div class="c" style="top:${ny}px;font-size:${bs}px;font-weight:800;line-height:1.25;white-space:nowrap;${rise(lt,.08,.3)}">${big}</div>
+    <div class="c" style="top:${sy}px;font-size:28px;font-weight:600;color:${s.color};${rise(lt,.2,.3)}">${small}</div>`;
+    if(s.src)h+=`<div class="c" style="top:${sy+38}px;font-size:18px;color:#8f97b8;${rise(lt,ph(s,s.chipLabelPh)+.3)}">ที่มา: ${s.src}</div>`;
+    y=sy+(s.src?78:52);
+  }else{
+    const band=L==='band';
+    h=(band?`<div class="abs" style="left:28px;top:112px;width:664px;height:196px;border-radius:28px;background:${hexa(s.color,.15)};border:2px solid ${hexa(s.color,.7)};${pop(lt,0,.4)}"></div>`:'')
+     +badge(band?560:40,band?144:140)
+     +`<div class="abs" style="left:${band?52:184}px;top:128px;font-size:${bs}px;font-weight:800;line-height:1.25;white-space:nowrap;${rise(lt,.08,.3)}">${big}</div>
+      <div class="abs" style="left:${band?56:188}px;top:232px;font-size:28px;font-weight:600;color:${s.color};${rise(lt,.2,.3)}">${small}</div>`;
+    if(s.src)h+=`<div class="abs" style="left:${band?56:188}px;top:276px;font-size:18px;color:#8f97b8;${rise(lt,ph(s,s.chipLabelPh)+.3)}">ที่มา: ${s.src}</div>`;
+  }
   if(s.stat){
     const tn=ph(s,s.stat.numPh), k=eo((lt-tn)/1.1), n=Math.round(5320*k);
     const tb=ph(s,s.stat.barPh), bw=eo((lt-tb)/.9)*52;
@@ -65,47 +118,109 @@ function tool(s,lt){
       <div class="abs" style="left:44px;top:${y+256}px;font-size:18px;color:#8f97b8;${rise(lt,ph(s,s.stat.ph)+.3)}">ที่มา: Exploding Topics · ข้อมูล มิ.ย. 2026</div>`;
     y+=300;
   }
-  h+=`<div class="abs" style="left:44px;top:${y}px;font-size:30px;font-weight:600;color:#cdd3ee;${rise(lt,ph(s,s.chipLabelPh))}">${s.chipLabel||'เหมาะกับ'}</div>
-  <div class="abs" style="left:32px;top:${y+46}px;width:660px">`;
+  const al=L==='center';
+  h+=`<div class="${al?'c':'abs'}" style="${al?'':'left:44px;'}top:${y}px;font-size:30px;font-weight:600;color:#cdd3ee;${rise(lt,ph(s,s.chipLabelPh))}">${s.chipLabel||'เหมาะกับ'}</div>
+  <div class="abs" style="left:32px;top:${y+46}px;width:660px;${al?'text-align:center;':''}">`;
   s.chips.forEach(c=>{h+=`<span class="chip" style="${s.stat?'font-size:28px;padding:8px 20px;margin:6px;':''}background:${hexa(s.color,.22)};border:2px solid ${s.color};${pop(lt,ph(s,c.ph,c.f))}">${c.t}</span>`});
   h+=`</div>`;
-  if(s.src)h+=`<div class="abs" style="left:188px;top:276px;font-size:18px;color:#8f97b8;${rise(lt,ph(s,s.chipLabelPh)+.3)}">ที่มา: ${s.src}</div>`;
-  const py=s.stat?748:y+250;
-  h+=`<div class="c" style="top:${py}px;${pop(lt,ph(s,s.punch.ph))}"><span style="display:inline-block;background:#f3ead8;color:#151a35;font-size:${s.stat?36:42}px;font-weight:800;padding:${s.stat?6:12}px 28px;border-radius:16px;border-bottom:5px solid ${s.color}">${s.punch.t}</span></div>`;
+  const py=s.stat?748:y+250, tp=ph(s,s.punch.ph); s._py=py;
+  h+=`<div class="c" style="top:${py}px;${pop(lt,tp)}"><span style="position:relative;overflow:hidden;display:inline-block;background:#f3ead8;color:#151a35;font-size:${s.stat?36:42}px;font-weight:800;padding:${s.stat?6:12}px 28px;border-radius:16px;border-bottom:5px solid ${s.color}">${s.punch.t}${sweep(lt,tp)}</span></div>`;
   return h;
 }
 function sum(s,lt){
   let h=`<div class="c gold" style="top:128px;font-size:62px;font-weight:800;${pop(lt,0)}">${s.title||'งานไหน ใช้ตัวไหน'}</div>
   <div class="c" style="top:222px;${pop(lt,ph(s,0,.45))}"><span style="background:#e2334a;font-size:26px;font-weight:600;padding:4px 18px;border-radius:8px;display:inline-block;transform:rotate(-3deg)">📸 แคปหน้าจอไว้เลย</span></div>`;
   s.rows.forEach((r,i)=>{const t0=ph(s,i+1), cur=lt>=t0&&lt<s.pt[i+2];
-    h+=`<div class="abs" style="left:40px;top:${290+i*102}px;width:640px;height:88px;border-radius:16px;background:${hexa(r[2],cur?.38:.18)};border:2px solid ${r[2]};${rise(lt,t0,.35)}">
+    h+=`<div class="abs" style="left:40px;top:${290+i*102}px;width:640px;height:88px;border-radius:16px;overflow:hidden;background:${hexa(r[2],cur?.38:.18)};border:2px solid ${r[2]};${rise(lt,t0,.35)}">
       <div class="abs" style="left:22px;top:24px;font-size:27px;font-weight:600;white-space:nowrap">${r[0]}</div>
-      <div class="abs" style="right:18px;top:12px;background:${r[2]};font-size:${s.badgeSize||42}px;font-weight:800;padding:0 22px;border-radius:999px;${pop(lt,t0+.35)}">${r[1]}</div></div>`});
+      <div class="abs" style="right:18px;top:12px;background:${r[2]};font-size:${s.badgeSize||42}px;font-weight:800;padding:0 22px;border-radius:999px;${pop(lt,t0+.35)}">${r[1]}</div>${cur?sweep(lt,t0-.1):''}</div>`});
   return h;
 }
 function cta(s,lt){
   return `<div class="c" style="top:190px;font-size:64px;font-weight:800;line-height:1.3;${pop(lt,0)}">${s.head||'อย่าใช้ AI<br><span class="gold">แค่ตัวเดียว</span>'}</div>
-  <div class="abs" style="left:70px;top:470px;width:270px;height:120px;border-radius:20px;background:#f2c45a;color:#151a35;font-size:56px;font-weight:800;text-align:center;line-height:120px;${pop(lt,ph(s,0))}">🔖 เซฟ</div>
-  <div class="abs" style="left:380px;top:470px;width:270px;height:120px;border-radius:20px;background:#e2334a;font-size:56px;font-weight:800;text-align:center;line-height:120px;${pop(lt,ph(s,1))}">↗ แชร์</div>
+  <div class="abs" style="left:70px;top:470px;width:270px;height:120px;border-radius:20px;overflow:hidden;background:#f2c45a;color:#151a35;font-size:56px;font-weight:800;text-align:center;line-height:120px;${pop(lt,ph(s,0))}">🔖 เซฟ${sweep(lt,ph(s,0))}</div>
+  <div class="abs" style="left:380px;top:470px;width:270px;height:120px;border-radius:20px;overflow:hidden;background:#e2334a;font-size:56px;font-weight:800;text-align:center;line-height:120px;${pop(lt,ph(s,1))}">↗ แชร์${sweep(lt,ph(s,1))}</div>
   <div class="c" style="top:640px;font-size:34px;font-weight:600;color:#cdd3ee;${rise(lt,ph(s,2))}">${s.foot||'ให้เพื่อนที่ยังใช้ AI อยู่ตัวเดียว'}</div>`;
 }
 const EN=[['แชตจีพีที','ChatGPT'],['เจมิไน','Gemini'],['กูเกิลด็อกส์','Google Docs'],['กูเกิล','Google'],['จีเมล','Gmail'],['ไดรฟ์','Drive'],['คล็อด','Claude'],['แคนวา','Canva'],['ดีปซีก','DeepSeek'],['เอไอ','AI']];
 if(window.EN_EXTRA)EN.push(...window.EN_EXTRA);EN.sort((a,b)=>b[0].length-a[0].length);
 function subHtml(t){let o=t;EN.forEach(([th,en],i)=>{o=o.split(th).join('\u0001'+i+'\u0002')});return o.replace(/\u0001(\d+)\u0002/g,(m,i)=>`<span class="en">${EN[+i][1]}</span>`)}
 const R={hook,tool,sum,cta};
+
+/* ───────── camera, transitions ───────── */
+function camCss(s,idx,lt){
+  const u=cl(lt/s.dur), odd=idx%2;
+  let tf='';
+  if(s._cam==='drift')tf=`scale(${(1+.035*u).toFixed(4)})`;
+  else if(s._cam==='push')tf=`scale(${(odd?1.045-.045*u:1+.045*u).toFixed(4)})`;
+  else if(s._cam==='pan')tf=`translateX(${((odd?1:-1)*(u-.5)*26).toFixed(2)}px) scale(1.03)`;
+  return `transform-origin:50% 38%;${tf?'transform:'+tf+';':''}`;
+}
+const TD=.28;
+function trans(type,c,isIn,col){
+  const e=ss(c);let css='',ov='';
+  if(type==='fade')css=`opacity:${(1-e).toFixed(3)};`;
+  else if(type==='slide')css=`opacity:${(1-e*.9).toFixed(3)};transform:translateX(${((isIn?1:-1)*e*150).toFixed(1)}px);`;
+  else if(type==='zoom')css=`opacity:${(1-e).toFixed(3)};transform:scale(${(isIn?1-.08*e:1+.12*e).toFixed(4)});`;
+  else if(type==='iris')css=`clip-path:circle(${((1-e)*1100).toFixed(1)}px at 50% 38%);`;
+  else if(type==='wipe'){
+    css=`opacity:${(1-e*.5).toFixed(3)};`;
+    ov=isIn?`<div class="fill" style="background:linear-gradient(90deg,#fff,${col} 2.5%);clip-path:inset(0 0 0 ${((1-e)*100).toFixed(2)}%)"></div>`
+           :`<div class="fill" style="background:linear-gradient(90deg,${col} 97.5%,#fff);clip-path:inset(0 ${((1-e)*100).toFixed(2)}% 0 0)"></div>`;
+  }else if(type==='flash'){
+    css=`opacity:${(1-e*.85).toFixed(3)};`;
+    ov=`<div class="fill" style="background:radial-gradient(circle at 50% 38%,rgba(255,255,255,${(e*.95).toFixed(3)}),${hexa(col,e*.75)} 85%)"></div>`;
+  }
+  return {css,ov};
+}
+
+/* ───────── background + decorations (canvas) ───────── */
 const ctx=document.getElementById('fx').getContext('2d');
+function drawStars(t,a){stars.forEach(o=>{ctx.globalAlpha=a*(.25+.45*(.5+.5*Math.sin(t*1.3+o.p)));ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(o.x,(o.y-t*o.s+12800)%1280,o.r,0,7);ctx.fill()})}
+function drawBg(t,s){
+  const col=s.color;
+  if(ST.bg==='stars')drawStars(t,1);
+  else if(ST.bg==='grid'){
+    drawStars(t,.45);
+    ctx.strokeStyle=col;ctx.lineWidth=1.6;const vy=720;
+    for(let k=-9;k<=9;k++){ctx.globalAlpha=.17;ctx.beginPath();ctx.moveTo(360+k*14,vy);ctx.lineTo(360+k*190,1280);ctx.stroke()}
+    for(let i=0;i<14;i++){const f=(i+(t*.5)%1)/14,y=vy+(1280-vy)*Math.pow(f,2.2);ctx.globalAlpha=.05+.22*f;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(720,y);ctx.stroke()}
+  }else if(ST.bg==='bokeh'){
+    drawStars(t,.3);
+    bokeh.forEach(b=>{const y=((b.y-t*b.sp)%1400+1400)%1400-60,x=b.x+Math.sin(t*.3+b.p)*18,c=b.g?'#f2c45a':col;
+      const g=ctx.createRadialGradient(x,y,0,x,y,b.r);g.addColorStop(0,hexa(c,.22));g.addColorStop(1,hexa(c,0));ctx.globalAlpha=1;ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,b.r,0,7);ctx.fill()});
+  }else if(ST.bg==='rings'){
+    drawStars(t,.4);
+    ctx.strokeStyle=col;ctx.lineWidth=2;
+    for(let i=0;i<6;i++){const f=(t*.22+i/6)%1,r=f*980;ctx.globalAlpha=(1-f)*.2;ctx.beginPath();ctx.arc(360,430,r,0,7);ctx.stroke()}
+  }
+  ctx.globalAlpha=1;
+}
+function drawDeco(t,lt,s){
+  if(ST.deco.includes('corners')){
+    const k=eo(lt/.45),len=46*k,p=.55+.2*Math.sin(t*3);
+    ctx.strokeStyle=s.color;ctx.lineWidth=4;ctx.lineCap='round';ctx.globalAlpha=p;
+    [[28,100,1,1],[692,100,-1,1],[28,960,1,-1],[692,960,-1,-1]].forEach(([x,y,dx,dy])=>{ctx.beginPath();ctx.moveTo(x+dx*len,y);ctx.lineTo(x,y);ctx.lineTo(x,y+dy*len);ctx.stroke()});
+    ctx.globalAlpha=1;
+  }
+  if(ST.deco.includes('burst')&&s.id==='tool'&&s.punch&&s._py!=null){
+    const age=lt-ph(s,s.punch.ph);
+    if(age>=0&&age<.9){const o=age/.9;burstP.forEach(b=>{const d=b.v*eo(o)*.9;ctx.globalAlpha=(1-o)*.9;ctx.fillStyle=b.g?'#f2c45a':s.color;ctx.beginPath();ctx.arc(360+Math.cos(b.a)*d*1.4,s._py+34+Math.sin(b.a)*d*.6,b.r*(1-o*.5),0,7);ctx.fill()});ctx.globalAlpha=1}
+  }
+}
+
 window.renderAt=function(t){
   t=cl(t,0,TOTAL-.001);
-  const s=SCENES.find(x=>t>=x.t0&&t<x.t0+x.dur), lt=t-s.t0;
-  document.getElementById('bg').style.background=`radial-gradient(520px 420px at 50% 34%, ${hexa(s.color,.34)}, transparent 70%), linear-gradient(#0a0d24,#05050d)`;
-  ctx.clearRect(0,0,720,1280);
-  stars.forEach(a=>{ctx.globalAlpha=.25+.45*(.5+.5*Math.sin(t*1.3+a.p));ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(a.x,(a.y-t*a.s+12800)%1280,a.r,0,7);ctx.fill()});
-  ctx.globalAlpha=1;
+  const idx=SCENES.findIndex(x=>t>=x.t0&&t<x.t0+x.dur), s=SCENES[idx], lt=t-s.t0;
   let si=0;while(si<s.subs.length-1&&lt>=s.pt[si+1])si++;
-  const fade=(s===SCENES[0]?1:cl(lt/.18))*cl((s.dur-lt)/.12+ (s===SCENES[SCENES.length-1]?1:0));
+  const body=header(s,lt)+R[s.id](s,lt);           // tool() also records s._py for the burst effect
+  document.getElementById('bg').style.background=`radial-gradient(520px 420px at 50% 34%, ${hexa(s.color,.34)}, transparent 70%), linear-gradient(#0a0d24,#05050d)`;
+  ctx.clearRect(0,0,720,1280);drawBg(t,s);drawDeco(t,lt,s);
+  const cIn=idx>0?1-cl(lt/TD):0, cOut=idx<NS-1?1-cl((s.dur-lt)/TD):0;
+  const tr=cIn>cOut?trans(TR[idx-1],cIn,true,s.color):cOut>0?trans(TR[idx],cOut,false,SCENES[idx+1].color):{css:'',ov:''};
   document.getElementById('st').innerHTML=
-   `<div class="abs" style="left:40px;top:76px;width:640px;height:4px;background:#ffffff26;border-radius:2px"><div style="width:${(t/TOTAL*100).toFixed(2)}%;height:100%;background:#f2c45a;border-radius:2px"></div></div>`
-   +`<div style="opacity:${fade.toFixed(3)}">`+header(s,lt)+R[s.id](s,lt)+`</div>`
-   +`<div class="sub" style="${pop(lt,s.pt[si],.16)}">${subHtml(s.subs[si])}</div>`;
+   `<div class="fill" style="${camCss(s,idx,lt)}"><div class="fill" style="${tr.css}">${body}</div></div>`+tr.ov
+   +`<div class="abs" style="left:40px;top:76px;width:640px;height:4px;background:#ffffff26;border-radius:2px"><div style="width:${(t/TOTAL*100).toFixed(2)}%;height:100%;background:#f2c45a;border-radius:2px"></div></div>`
+   +`<div class="sub" style="${pop(lt,s.pt[si],.16)}"><span class="${ST.sub==='pill'?'pill':''}">${subHtml(s.subs[si])}</span></div>`;
 };
 </script>

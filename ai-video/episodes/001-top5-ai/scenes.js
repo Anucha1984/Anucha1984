@@ -1,3 +1,4 @@
+window.STYLE_PRESET='classic'; // keep episode 001's original look
 // Scene data. dur = seconds (estimated; replaced by real voice durations when audio exists)
 const SCENES = [
  {id:'hook', color:'#e2334a', dur:6.4, chip:'', subs:["เอไอห้าตัวนี้","คนทั้งโลกใช้เยอะที่สุด","แต่ละตัวเก่งไม่เหมือนกัน","ดูจบ รู้เลยว่า","งานไหนต้องใช้ตัวไหน"]},
