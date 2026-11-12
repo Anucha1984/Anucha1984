@@ -66,6 +66,18 @@ npm link                          # ให้เรียกคำสั่ง `
 
 โมเดลเริ่มต้นคือ **Claude Sonnet** (`claude-sonnet-5-5`) เปลี่ยนได้ด้วย `--model` หรือ `NITHAN_MODEL=...`
 
+## เปิดบน Desktop (ดับเบิลคลิก)
+
+| ระบบ | ไฟล์ |
+|---|---|
+| Windows | `desktop\NiThan-Studio.bat` |
+| macOS | `desktop/NiThan-Studio.command` (ครั้งแรกคลิกขวา → Open) |
+| Linux | `desktop/nithan-studio.sh` |
+
+ไฟล์จะติดตั้งครั้งแรกให้เอง เปิดเซิร์ฟเวอร์ แล้วเปิดเบราว์เซอร์ที่ http://127.0.0.1:4173 ให้ทันที
+(หรือ `npm run desktop`) จากนั้นไปที่ **ตั้งค่า** ในหน้าเว็บเพื่อใส่คีย์โมเดลภาพสมจริง (Cloudflare ใช้ฟรี)
+คีย์ถูกเก็บไว้ที่ `~/.nithan/config.json` ในเครื่องคุณ และใช้กับคำสั่ง `nithan` ด้วย ไม่ต้องตั้ง environment variable
+
 ## ใช้งาน
 
 ```bash

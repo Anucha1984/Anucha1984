@@ -6,6 +6,7 @@ import { mountCreate } from './views/create.js';
 import { mountJob } from './views/job.js';
 import { mountLibrary } from './views/library.js';
 import { mountProject } from './views/project.js';
+import { mountSettings } from './views/settings.js';
 
 const view = document.getElementById('view');
 let cleanup = null;
@@ -19,6 +20,7 @@ const ROUTES = [
   { re: /^\/job\/(j[a-f0-9]{12})$/, nav: 'create', mount: mountJob, title: 'กำลังสร้าง' },
   { re: /^\/project\/([a-z0-9][a-z0-9-]{0,79})$/, nav: 'library', mount: mountProject, title: 'ผลงาน' },
   { re: /^\/library$/, nav: 'library', mount: mountLibrary, title: 'คลังวิดีโอ' },
+  { re: /^\/settings$/, nav: 'settings', mount: mountSettings, title: 'ตั้งค่า' },
 ];
 
 export function setGenreTint(genre) {

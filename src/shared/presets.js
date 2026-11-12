@@ -9,7 +9,8 @@ export const GENRES = {
     tagline: 'ดราม่าเข้มข้น หักมุมทุกนาที จบตอนแบบค้างคา',
     emoji: '🐉',
     accent: '#E5484D',
-    defaultStyle: 'china',
+    defaultStyle: 'realistic',
+    cartoonStyle: 'china',
     captionFont: 'Kanit',
     examples: [
       'ประธานบริษัทปลอมตัวเป็นพนักงานส่งของ เพื่อทดสอบใจคู่หมั้น',
@@ -30,7 +31,8 @@ export const GENRES = {
     tagline: 'ผีไทยคลาสสิก เวรกรรมตามทัน หักมุมตอนจบ',
     emoji: '👻',
     accent: '#7C5CFF',
-    defaultStyle: 'thai-retro',
+    defaultStyle: 'dark-fantasy',
+    cartoonStyle: 'thai-retro',
     captionFont: 'Chakra Petch',
     examples: [
       'วินมอเตอร์ไซค์รับผู้โดยสารสาวตอนตีสอง ไปส่งที่ซอยวัดร้าง',
@@ -50,7 +52,8 @@ export const GENRES = {
     tagline: 'ปลาบู่ทอง หลวิชัยคาวี สังข์ทอง เล่าใหม่ให้สนุก',
     emoji: '🐟',
     accent: '#F5A524',
-    defaultStyle: 'thai',
+    defaultStyle: 'realistic',
+    cartoonStyle: 'thai',
     captionFont: 'Charm',
     examples: ['ปลาบู่ทอง', 'หลวิชัยคาวี', 'สังข์ทอง', 'ไกรทอง', 'นางสิบสอง', 'แก้วหน้าม้า'],
     writing:

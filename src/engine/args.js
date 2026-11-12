@@ -34,6 +34,7 @@ export function parseArgs(argv) {
     if (a === '--help' || a === '-h') command = 'help';
     else if (a === '--version' || a === '-v') command = 'version';
     else if (a === '--mock') input.mock = true;
+    else if (a === '--open') input.open = true;
     else if (a === '--no-music') input.music = false;
     else if (a.startsWith('-') && a.length > 1) {
       let value;
@@ -105,7 +106,7 @@ export function helpText() {
   nithan "<ชื่อเรื่องหรือไอเดีย>" [ตัวเลือก]     สร้างวิดีโอหนึ่งเรื่อง
   nithan --continue <โฟลเดอร์โปรเจกต์> ["ทิศทางของตอนใหม่"]   สร้างตอนต่อไปของเรื่องเดิม
   nithan list                                   ดูแนวเรื่องและลายเส้นทั้งหมด
-  nithan studio                                 เปิดสตูดิโอบนเว็บเบราว์เซอร์
+  nithan studio [--open]                        เปิดสตูดิโอ (--open เปิดเบราว์เซอร์ให้เลย)
 
 ตัวเลือก
   --genre, -g   แนวเรื่อง: ${Object.keys(GENRES).join(' | ')}   (ค่าเริ่มต้น folktale)

@@ -38,6 +38,8 @@ export const api = {
   deleteProject: (id) => request('DELETE', `/api/projects/${encodeURIComponent(id)}`),
   render: (id, opts = {}) => request('POST', `/api/projects/${encodeURIComponent(id)}/render`, opts),
   redraw: (id, sceneId, opts = {}) => request('POST', `/api/projects/${encodeURIComponent(id)}/scenes/${encodeURIComponent(sceneId)}/redraw`, opts),
+  settings: () => request('GET', '/api/settings'),
+  saveSettings: (changes) => request('PUT', '/api/settings', changes).then((r) => ((presetsPromise = null), r)),
   nextEpisode: (id, opts = {}) => request('POST', `/api/projects/${encodeURIComponent(id)}/next-episode`, opts),
 };
 

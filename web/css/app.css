@@ -789,6 +789,13 @@ body.has-bar .toast {
   .nav-link {
     padding: 4px 12px;
     font-size: 14.500px;
+    white-space: nowrap;
+  }
+  .nav-text-opt {
+    display: none;
+  }
+  .brand-name {
+    white-space: nowrap;
   }
   .view {
     padding: 36px 16px 56px;

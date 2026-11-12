@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { GENRES, STYLES, resolveOptions } from '../src/shared/presets.js';
 import { continueInput, helpText, listText, parseArgs } from '../src/engine/args.js';
+import { loadConfig } from '../src/shared/config.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const STAGES = { storyboard: 'เขียนบท', art: 'วาดภาพ', voice: 'พากย์เสียง', render: 'ตัดต่อ', done: 'เสร็จ', error: 'ผิดพลาด' };
@@ -38,6 +39,7 @@ function makeProgress() {
 }
 
 async function main() {
+  await loadConfig(); // ~/.nithan/config.json (keys saved from the Studio); real env vars win
   const { command, input, continueDir, errors } = parseArgs(process.argv.slice(2));
   if (errors.length) {
     for (const e of errors) console.error(c('31', 'ผิดพลาด: ') + e);
@@ -51,6 +53,7 @@ async function main() {
     return void console.log(pkg.version);
   }
   if (command === 'studio') {
+    if (input.open) process.env.NITHAN_OPEN = '1';
     try {
       await import(pathToFileURL(path.join(root, 'src/server/index.js')).href);
     } catch (err) {

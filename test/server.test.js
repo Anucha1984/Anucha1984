@@ -7,6 +7,8 @@ import path from 'node:path';
 import { after, before, test } from 'node:test';
 
 process.env.NITHAN_NO_AUTOSTART = '1';
+process.env.NITHAN_HOME = await fs.mkdtemp(path.join(os.tmpdir(), 'nithan-home-test-'));
+for (const k of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_API_TOKEN', 'GEMINI_API_KEY', 'GOOGLE_API_KEY', 'OPENAI_API_KEY', 'NITHAN_IMAGE']) delete process.env[k];
 const { startServer } = await import('../src/server/index.js');
 
 let srv;
@@ -89,6 +91,28 @@ test('GET /api/presets exposes genres/styles/lengths without the long prompts', 
   for (const g of Object.values(p.genres)) assert.equal(g.writing, undefined);
   for (const s of Object.values(p.styles)) assert.equal(s.art, undefined);
   assert.ok(p.genres.folktale.examples.includes('ปลาบู่ทอง'));
+  assert.equal(p.image.provider, 'claude');
+  assert.equal(p.image.realistic, false);
+  for (const s of Object.values(p.styles)) assert.equal(s.photo, undefined);
+});
+
+test('settings API saves keys to the config file, masks them and flips the image provider', async () => {
+  let res = await fetch(`${srv.url}/api/settings`);
+  assert.equal(res.status, 200);
+  let d = await res.json();
+  assert.equal(d.settings.CLOUDFLARE_API_TOKEN.set, false);
+  res = await fetch(`${srv.url}/api/settings`, { method: 'PUT', headers: J, body: JSON.stringify({ CLOUDFLARE_ACCOUNT_ID: 'acc', CLOUDFLARE_API_TOKEN: 'tok-0123456789' }) });
+  assert.equal(res.status, 200);
+  d = await res.json();
+  assert.equal(d.settings.CLOUDFLARE_API_TOKEN.value, 'tok-…6789');
+  assert.equal(d.image.provider, 'cloudflare');
+  assert.equal((await (await fetch(`${srv.url}/api/presets`)).json()).image.realistic, true);
+  const file = JSON.parse(await fs.readFile(path.join(process.env.NITHAN_HOME, 'config.json'), 'utf8'));
+  assert.equal(file.CLOUDFLARE_API_TOKEN, 'tok-0123456789');
+  res = await fetch(`${srv.url}/api/settings`, { method: 'PUT', headers: J, body: JSON.stringify({ NOPE: 'x' }) });
+  assert.equal(res.status, 400);
+  res = await fetch(`${srv.url}/api/settings`, { method: 'PUT', headers: J, body: JSON.stringify({ CLOUDFLARE_ACCOUNT_ID: '', CLOUDFLARE_API_TOKEN: '' }) });
+  assert.equal((await res.json()).image.provider, 'claude');
 });
 
 test('static app, fonts and security headers', async () => {

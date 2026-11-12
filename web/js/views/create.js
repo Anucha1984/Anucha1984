@@ -56,7 +56,9 @@ export function mountCreate(root, { presets }) {
     music: draft.music !== false,
     mock: Boolean(draft.mock),
   };
-  let styleTouched = Boolean(draft.style && draft.style !== presets.genres[genre0].defaultStyle);
+  const defaultStyleFor = (g) => (presets.image?.realistic || !presets.styles[g.defaultStyle]?.needsImageModel ? g.defaultStyle : g.cartoonStyle || g.defaultStyle);
+  if (!presets.styles[draft.style] || (draft.autoStyle && draft.style !== defaultStyleFor(presets.genres[genre0]))) state.style = defaultStyleFor(presets.genres[genre0]);
+  let styleTouched = Boolean(draft.style && !draft.autoStyle && draft.style !== presets.genres[genre0].defaultStyle);
   let busy = false;
 
   // ── ๑ prompt
@@ -100,7 +102,7 @@ export function mountCreate(root, { presets }) {
           checked: g.id === state.genre,
           onchange: () => {
             state.genre = g.id;
-            if (!styleTouched) state.style = g.defaultStyle;
+            if (!styleTouched) state.style = defaultStyleFor(g);
             sync(true);
           },
         }),
@@ -111,9 +113,23 @@ export function mountCreate(root, { presets }) {
   );
 
   // ── ๓ style
-  const styleGrid = h('div', { class: 'style-grid', role: 'radiogroup', aria: { labelledby: 'st-style' } });
+  const realGrid = h('div', { class: 'style-grid real', role: 'radiogroup', aria: { labelledby: 'st-style' } });
+  const toonGrid = h('div', { class: 'style-grid', role: 'radiogroup', aria: { label: 'ลายเส้นการ์ตูน' } });
   const styleInputs = new Map();
   const recoTags = new Map();
+  const img = presets.image || { realistic: false, provider: 'claude' };
+  const imageCard = h(
+    'div',
+    { class: 'image-status' + (img.realistic ? ' ok' : '') },
+    svg(img.realistic ? ICONS.check : ICONS.alert),
+    h(
+      'div',
+      { class: 'image-status-body' },
+      h('span', { class: 'image-status-title' }, img.realistic ? `ภาพสมจริงพร้อมใช้ · วาดด้วย ${{ cloudflare: 'FLUX.2 (Cloudflare, ฟรี)', gemini: 'Gemini', openai: 'OpenAI' }[img.provider] || img.provider}` : 'ภาพสมจริงยังไม่พร้อม — ต้องใส่คีย์โมเดลภาพก่อน (Cloudflare ใช้ฟรี)'),
+      h('span', { class: 'dim' }, img.realistic ? 'ล็อกหน้าตัวละครให้เหมือนกันทุกฉากอัตโนมัติ' : 'ระหว่างนี้เลือกลายเส้นการ์ตูนได้ Claude วาดให้เอง'),
+    ),
+    h('a', { class: 'btn btn-sm ' + (img.realistic ? 'btn-ghost' : 'btn-primary'), href: '#/settings' }, svg(ICONS.gear), img.realistic ? 'ตั้งค่า' : 'ใส่คีย์'),
+  );
   for (const s of styles) {
     const input = h('input', {
       type: 'radio',
@@ -128,10 +144,16 @@ export function mountCreate(root, { presets }) {
     const reco = h('span', { class: 'reco', hidden: true }, 'แนะนำ');
     styleInputs.set(s.id, input);
     recoTags.set(s.id, reco);
-    styleGrid.append(
-      h('label', { class: 'pick' }, input, h('span', { class: 'style-card' }, h('span', { class: 'style-thumb' }, svg(styleThumb(s))), h('span', { class: 'style-body' }, h('span', { class: 'style-name' }, s.name), h('span', { class: 'style-sub' }, s.needsImageModel ? s.subtitle + ' · ใช้ API ภาพ' : s.subtitle))), reco, h('span', { class: 'tick' }, svg(ICONS.check))),
+    (s.needsImageModel ? realGrid : toonGrid).append(
+      h('label', { class: 'pick' + (s.needsImageModel && !img.realistic ? ' locked' : '') }, input, h('span', { class: 'style-card' }, h('span', { class: 'style-thumb' }, svg(styleThumb(s))), h('span', { class: 'style-body' }, h('span', { class: 'style-name' }, s.name), h('span', { class: 'style-sub' }, s.needsImageModel ? (img.realistic ? s.subtitle : 'ต้องใส่คีย์ก่อน') : s.subtitle))), reco, h('span', { class: 'tick' }, svg(ICONS.check))),
     );
   }
+  const styleGrid = h(
+    'div',
+    { class: 'style-groups' },
+    h('div', { class: 'style-group' }, h('h3', { class: 'style-group-title' }, 'ภาพสมจริง', h('span', { class: 'dim' }, ' · โมเดลภาพ + ล็อกหน้าตัวละคร')), imageCard, realGrid),
+    h('div', { class: 'style-group' }, h('h3', { class: 'style-group-title' }, 'การ์ตูน', h('span', { class: 'dim' }, ' · Claude วาดเอง ไม่ต้องใช้คีย์')), toonGrid),
+  );
 
   // ── ๔ length + more
   const seg = h(
@@ -178,6 +200,7 @@ export function mountCreate(root, { presets }) {
   const copyBtn = h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: copyCli }, svg(ICONS.copy), 'คัดลอก');
   const cta = h('button', { class: 'btn btn-primary btn-lg btn-block', type: 'submit' }, svg(ICONS.spark), h('span', null, 'สร้างวิดีโอ'));
   const errorBox = h('div', { role: 'alert' });
+  const ctaHint = h('p', { class: 'cta-hint' });
 
   const stepHead = (n, id, title, note) =>
     h('div', { class: 'step-head' }, h('span', { class: 'step-num', aria: { hidden: 'true' } }, thaiNum(n)), h('h2', { class: 'step-title', id }, title), note ? h('span', { class: 'step-note' }, note) : null);
@@ -211,7 +234,7 @@ export function mountCreate(root, { presets }) {
         h('dl', { class: 'summary' }, h('div', null, h('dt', null, 'แนวเรื่อง'), sumGenre), h('div', null, h('dt', null, 'ลายเส้น'), sumStyle), h('div', null, h('dt', null, 'ความยาว'), sumLen)),
       ),
       h('div', { class: 'cli' }, h('div', { class: 'cli-head' }, h('span', null, svg(ICONS.terminal), 'หรือสั่งด้วยคำสั่งเดียว'), copyBtn), cliPre),
-      h('div', { class: 'cta-bar' }, cta, h('p', { class: 'cta-hint' }, 'ใช้เวลาไม่กี่นาที ระหว่างรอดูภาพขึ้นทีละฉากได้')),
+      h('div', { class: 'cta-bar' }, cta, ctaHint),
     ),
   );
 
@@ -221,7 +244,7 @@ export function mountCreate(root, { presets }) {
       { class: 'hero' },
       h('span', { class: 'eyebrow' }, svg(ICONS.spark), 'สร้างวิดีโอด้วย Claude ในคำสั่งเดียว'),
       h('h1', null, 'พิมพ์บรรทัดเดียว ', h('em', null, 'ได้วิดีโอทั้งเรื่อง')),
-      h('p', null, 'Claude เขียนบท วาดภาพทุกฉาก พากย์ไทย ใส่ซับ แล้วตัดต่อเป็นวิดีโอแนวตั้งพร้อมโพสต์'),
+      h('p', null, 'Claude เขียนบทและกำกับภาพทุกฉาก โมเดลภาพวาดให้สมจริงแบบหนัง ล็อกหน้าตัวละคร พากย์ไทย ใส่ซับ แล้วตัดต่อเป็นวิดีโอแนวตั้งพร้อมโพสต์'),
     ),
     form,
   );
@@ -238,9 +261,12 @@ export function mountCreate(root, { presets }) {
   function sync(genreChanged = false) {
     const g = presets.genres[state.genre];
     const s = presets.styles[state.style];
+    const blocked = Boolean(s.needsImageModel && !img.realistic);
+    cta.classList.toggle('btn-warn', blocked);
+    ctaHint.textContent = blocked ? 'ลายเส้นนี้ต้องใส่คีย์โมเดลภาพก่อน หรือเลือกลายเส้นการ์ตูนแทน' : 'ใช้เวลาไม่กี่นาที ระหว่างรอดูภาพขึ้นทีละฉากได้';
     setGenreTint(state.genre);
     for (const [id, input] of styleInputs) input.checked = id === state.style;
-    for (const [id, tag] of recoTags) tag.hidden = id !== g.defaultStyle || id === state.style;
+    for (const [id, tag] of recoTags) tag.hidden = id !== defaultStyleFor(g) || id === state.style;
     counter.textContent = `${state.prompt.length}/${MAX_PROMPT}`;
     chipsLabel.textContent = `ยังนึกไม่ออก? แตะตัวอย่างแนว${g.name}`;
     if (genreChanged || !chips.childElementCount) {
@@ -268,7 +294,7 @@ export function mountCreate(root, { presets }) {
     sumLen.textContent = `${len.name} · ${len.scenes} ฉาก`;
     clear(cliPre).append(...cliTokens(state, presets).flatMap(([kind, v], i) => [i ? ' ' : '', h('span', { class: 'tok-' + kind }, v)]));
     if (state.prompt.trim()) clear(errorBox);
-    saveDraft(state);
+    saveDraft({ ...state, autoStyle: !styleTouched });
   }
 
   async function submit() {

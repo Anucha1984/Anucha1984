@@ -3,11 +3,14 @@
 //   env: PORT, HOST, NITHAN_OUT (output dir, default ./output), NITHAN_NO_AUTOSTART=1
 // See docs/CONTRACT.md. JSON API under /api, project files under /media, web app at /.
 import http from 'node:http';
+import { spawn } from 'node:child_process';
 import crypto from 'node:crypto';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CAMERA_MOVES, DEFAULTS, GENRES, LENGTHS, STYLES, VOICE_ROLES } from '../shared/presets.js';
+import { describeConfig, loadConfig, saveConfig } from '../shared/config.js';
+import { IMAGE_PROVIDERS, pickImageProvider } from '../engine/image.js';
 import { mockSvg } from '../shared/mock.js';
 import { createVideo, renderProject } from '../pipeline.js';
 import { JobQueue } from './jobs.js';
@@ -139,7 +142,24 @@ function publicPresets() {
     cameraMoves: CAMERA_MOVES,
     voiceRoles: VOICE_ROLES,
     ttsOptions: TTS_OPTIONS,
+    imageProviders: IMAGE_PROVIDERS,
+    image: imageStatus(),
   };
+}
+
+/** Which image provider a new job would use right now (and whether realistic styles are possible). */
+function imageStatus() {
+  const env = process.env;
+  let provider = 'claude';
+  try {
+    provider = pickImageProvider(null, 'thai');
+  } catch {}
+  const keys = {
+    cloudflare: Boolean(env.CLOUDFLARE_ACCOUNT_ID && env.CLOUDFLARE_API_TOKEN),
+    gemini: Boolean(env.GEMINI_API_KEY || env.GOOGLE_API_KEY),
+    openai: Boolean(env.OPENAI_API_KEY),
+  };
+  return { provider, realistic: provider !== 'claude', keys, requested: env.NITHAN_IMAGE || 'auto', model: env.NITHAN_MODEL || 'claude-sonnet-5-5', voice: Boolean(env.ELEVENLABS_API_KEY || env.OPENAI_API_KEY) ? 'api' : 'edge' };
 }
 
 /** Build the request handler + its state (job queue, project store). */
@@ -257,6 +277,19 @@ export function createApp({ outDir } = {}) {
     const [, resource, id, sub, subId, action] = segs;
 
     if (resource === 'presets' && segs.length === 2 && method === 'GET') return json(res, 200, publicPresets());
+    if (resource === 'settings' && segs.length === 2) {
+      if (method === 'GET') return json(res, 200, { settings: await describeConfig(), image: imageStatus() });
+      if (method === 'PUT') {
+        const body = await readJson(req);
+        if (!body || typeof body !== 'object' || Array.isArray(body)) throw new HttpError(400, 'รูปแบบข้อมูลไม่ถูกต้อง');
+        try {
+          await saveConfig(body);
+        } catch (err) {
+          throw new HttpError(400, err.message);
+        }
+        return json(res, 200, { settings: await describeConfig(), image: imageStatus() });
+      }
+    }
 
     if (resource === 'jobs') {
       if (segs.length === 2 && method === 'GET') return json(res, 200, { jobs: queue.list() });
@@ -458,6 +491,7 @@ export async function startServer(opts = {}) {
   const port = opts.port ?? (process.env.PORT !== undefined && process.env.PORT !== '' ? Number(process.env.PORT) : 4173);
   if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error(`PORT ไม่ถูกต้อง: ${process.env.PORT}`);
   if (autoStarted && opts.port === undefined && !opts.outDir) return autoStarted; // `nithan studio` importing an already auto-started module
+  await loadConfig(); // ~/.nithan/config.json saved from the settings page; real env vars win
 
   const app = createApp({ outDir: opts.outDir });
   await fsp.mkdir(app.outDir, { recursive: true });
@@ -487,6 +521,7 @@ export async function startServer(opts = {}) {
     if (!loopbackOnly) console.log('  หมายเหตุ: เปิดให้เครื่องอื่นในเครือข่ายเข้าถึงได้ (HOST) ใช้เฉพาะในเครือข่ายที่ไว้ใจ');
     console.log('  กด Ctrl+C เพื่อปิด\n');
   }
+  if (opts.open || process.env.NITHAN_OPEN === '1') openBrowser(url);
   return {
     server,
     port: actual,
@@ -500,6 +535,14 @@ export async function startServer(opts = {}) {
         server.close(() => resolve());
       }),
   };
+}
+
+/** Open the default browser (best effort, never throws). */
+export function openBrowser(url) {
+  const [cmd, args] = process.platform === 'win32' ? ['cmd', ['/c', 'start', '', url]] : process.platform === 'darwin' ? ['open', [url]] : ['xdg-open', [url]];
+  try {
+    spawn(cmd, args, { stdio: 'ignore', detached: true }).on('error', () => {}).unref();
+  } catch {}
 }
 
 // Auto-start when run directly (`npm run studio`) or imported by `nithan studio`.
