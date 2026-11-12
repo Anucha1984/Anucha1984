@@ -27,6 +27,8 @@
 - รัน `GEMINI_API_KEY=… ./build.sh episodes/<NNN-slug>` → ได้ `videos/<NNN-slug>.mp4`
 - ต้องใช้โฮสต์ `generativelanguage.googleapis.com` และคีย์ Google AI Studio ในตัวแปร `GEMINI_API_KEY` หรือ `API_KEY` (ห้ามเขียนคีย์ลงไฟล์)
 
+- เสียงพากย์: ผู้ชายเท่านั้น ค่าเริ่มต้นคือเสียง `Charon` (เปลี่ยนด้วยตัวแปร `TTS_VOICE`) คำอังกฤษต้องออกสำเนียงไทย
+
 ## 6. คนตรวจงาน (QA)
 - เปิด `out/<slug>/check.jpg` ดูทุกเฟรม: ตัวหนังสือล้นจอ/ซ้อนกัน, สระไทยลอย, ซับไตเติลตรงฉาก
 - ผ่านแล้วจึงคอมมิต `episodes/`, `videos/`, `content/queue.md` และส่งไฟล์ให้ผู้ใช้

@@ -2,9 +2,9 @@
 import os,sys,json,re,base64,subprocess,urllib.request,time
 K=os.environ.get('GEMINI_API_KEY') or os.environ.get('API_KEY')
 if not K: sys.exit('Set GEMINI_API_KEY (Google AI Studio key)')
-MODEL=os.environ.get('TTS_MODEL','gemini-2.5-flash-preview-tts'); VOICE=os.environ.get('TTS_VOICE','Puck')
+MODEL=os.environ.get('TTS_MODEL','gemini-2.5-flash-preview-tts'); VOICE=os.environ.get('TTS_VOICE','Charon')
 S=[' '.join(json.loads('['+m+']')) for m in re.findall(r"subs:\[(.*?)\]",open('scenes.js').read())]
-STYLE="Read this in Thai like a fast-paced, upbeat TikTok explainer narrator. Speak quickly and crisply, keep pauses very short, no dead air:\n\n"
+STYLE="You are a popular Thai male tech content creator narrating a TikTok explainer. Speak natural Bangkok Thai: confident, warm, energetic, fairly fast, very short pauses. Pronounce every English brand or tech word the way Thai people say it, with a Thai accent, never with an American accent:\n\n"
 os.makedirs('vo',exist_ok=True)
 for i,text in enumerate(S):
     if os.path.exists(f'vo/{i}.mp3'): continue
