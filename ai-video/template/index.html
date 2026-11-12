@@ -108,14 +108,15 @@ function tool(s,lt){
     if(s.src)h+=`<div class="abs" style="left:${band?56:188}px;top:276px;font-size:18px;color:#8f97b8;${rise(lt,ph(s,s.chipLabelPh)+.3)}">ที่มา: ${s.src}</div>`;
   }
   if(s.stat){
-    const tn=ph(s,s.stat.numPh), k=eo((lt-tn)/1.1), n=Math.round(5320*k);
-    const tb=ph(s,s.stat.barPh), bw=eo((lt-tb)/.9)*52;
+    const SD=Object.assign({value:5320,unit:'ล้านครั้ง',label:'ยอดเข้าเว็บต่อเดือน',pct:52,note:'≈ 52% ของยอดรวมทั้งลิสต์',src:'Exploding Topics · ข้อมูล มิ.ย. 2026'},s.stat);
+    const tn=ph(s,s.stat.numPh), k=eo((lt-tn)/1.1), n=Math.round(SD.value*k);
+    const tb=ph(s,s.stat.barPh), bw=eo((lt-tb)/.9)*SD.pct;
     h+=`<div class="abs card" style="left:40px;top:${y}px;width:640px;height:250px;border-color:${s.color};padding:18px 28px;${pop(lt,ph(s,s.stat.ph))}">
-      <div style="font-size:28px;color:#cdd3ee">ยอดเข้าเว็บต่อเดือน</div>
-      <div class="gold" style="font-size:86px;font-weight:800;line-height:1.15;opacity:${lt>tn?1:.15}">${n.toLocaleString('en')} <span style="font-size:44px">ล้านครั้ง</span></div>
+      <div style="font-size:28px;color:#cdd3ee">${SD.label}</div>
+      <div class="gold" style="font-size:86px;font-weight:800;line-height:1.15;opacity:${lt>tn?1:.15}">${n.toLocaleString('en')} <span style="font-size:44px">${SD.unit}</span></div>
       <div style="height:22px;background:#ffffff22;border-radius:11px;margin-top:6px;overflow:hidden"><div style="height:100%;width:${bw}%;background:${s.color};border-radius:11px"></div></div>
-      <div style="font-size:24px;color:#cdd3ee;margin-top:6px;opacity:${cl((lt-tb)*3)}">≈ 52% ของยอดรวมทั้งลิสต์</div></div>
-      <div class="abs" style="left:44px;top:${y+256}px;font-size:18px;color:#8f97b8;${rise(lt,ph(s,s.stat.ph)+.3)}">ที่มา: Exploding Topics · ข้อมูล มิ.ย. 2026</div>`;
+      <div style="font-size:24px;color:#cdd3ee;margin-top:6px;opacity:${cl((lt-tb)*3)}">${SD.note}</div></div>
+      <div class="abs" style="left:44px;top:${y+256}px;font-size:18px;color:#8f97b8;${rise(lt,ph(s,s.stat.ph)+.3)}">ที่มา: ${SD.src}</div>`;
     y+=300;
   }
   const al=L==='center';
@@ -169,7 +170,7 @@ function trans(type,c,isIn,col){
            :`<div class="fill" style="background:linear-gradient(90deg,${col} 97.5%,#fff);clip-path:inset(0 ${((1-e)*100).toFixed(2)}% 0 0)"></div>`;
   }else if(type==='flash'){
     css=`opacity:${(1-e*.85).toFixed(3)};`;
-    ov=`<div class="fill" style="background:radial-gradient(circle at 50% 38%,rgba(255,255,255,${(e*.95).toFixed(3)}),${hexa(col,e*.75)} 85%)"></div>`;
+    ov=`<div class="fill" style="background:radial-gradient(circle at 50% 38%,rgba(255,255,255,${(e*.6).toFixed(3)}),${hexa(col,e*.5)} 85%)"></div>`;
   }
   return {css,ov};
 }
