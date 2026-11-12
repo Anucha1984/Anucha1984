@@ -218,10 +218,10 @@ async function drawScene(sb, scene, index, { model, llm, effort }) {
  * @param {string} projectDir
  * @param {{onProgress?:Function, model?:string, concurrency?:number, only?:string[], effort?:string, llm?:Function}} [opts]
  */
-export async function generateArt(sb, projectDir, { onProgress, model, concurrency = 4, only, effort = process.env.NITHAN_ART_EFFORT || 'medium', llm = complete, image } = {}) {
+export async function generateArt(sb, projectDir, { onProgress, model, concurrency = 4, only, effort = process.env.NITHAN_ART_EFFORT || 'medium', llm = complete, image, refsDir } = {}) {
   // photoreal styles (or an explicit --image provider) are painted by an image model instead of Claude SVG
   const provider = llm === complete ? pickImageProvider(image, sb.style) : 'claude';
-  if (provider !== 'claude') return generateRasterArt(sb, projectDir, provider, { onProgress, only });
+  if (provider !== 'claude') return generateRasterArt(sb, projectDir, provider, { onProgress, only, refsDir });
   const dir = path.join(projectDir, 'scenes');
   await fs.mkdir(dir, { recursive: true });
   sb.scenes.forEach((s, i) => (s.id ||= `s${String(i + 1).padStart(2, '0')}`));

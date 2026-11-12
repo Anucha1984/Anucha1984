@@ -326,6 +326,7 @@ export function createApp({ outDir } = {}) {
           mock: opts.mock,
           series,
         });
+        input.refsDir = path.join(store.dir(id), 'characters'); // keep the same faces across episodes
         const job = startCreateJob(input, 'episode');
         return json(res, 202, { jobId: job.id });
       }

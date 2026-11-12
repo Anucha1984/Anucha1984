@@ -23,23 +23,31 @@ Claude เขียนบทภาษาไทย วาดภาพทุกฉ
 `realistic` (ภาพสมจริง) · `dark-fantasy` (สยองสมจริง) ·
 `thai` (จิตรกรรมไทย) · `thai-retro` (การ์ตูนเล่มละบาท) · `anime` (อนิเมะญี่ปุ่น)
 
-### ภาพสมจริง (ไม่ใช่การ์ตูน)
+### ภาพสมจริง (ไม่ใช่การ์ตูน) + ล็อกหน้าตัวละคร
 
 ลายเส้น `realistic` (ภาพสมจริงแบบหนัง) และ `dark-fantasy` (สยองสมจริง) ใช้โมเดลสร้างภาพวาดแทน Claude
-โดย Claude ยังเขียนบทและกำกับภาพทุกฉากเหมือนเดิม ต้องตั้งค่าคีย์อย่างใดอย่างหนึ่ง:
+โดย Claude ยังเขียนบทและกำกับภาพทุกฉากเหมือนเดิม ตั้งค่าผู้ให้บริการอย่างใดอย่างหนึ่ง:
 
-| ผู้ให้บริการ | ตั้งค่า | เปลี่ยนโมเดล |
-|---|---|---|
-| Google Gemini | `GEMINI_API_KEY` | `NITHAN_GEMINI_IMAGE_MODEL` (ค่าเริ่มต้น `gemini-2.5-flash-image`) |
-| OpenAI | `OPENAI_API_KEY` | `NITHAN_OPENAI_IMAGE_MODEL` (ค่าเริ่มต้น `gpt-image-1`) |
+| `--image` | โมเดล | ตั้งค่า | ค่าใช้จ่าย |
+|---|---|---|---|
+| `cloudflare` | FLUX.2 [klein] 9B บน Workers AI | `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_API_TOKEN` | มีโควตาฟรีรายวัน |
+| `gemini` | Gemini image (`NITHAN_GEMINI_IMAGE_MODEL`) | `GEMINI_API_KEY` | คิดเงินตามภาพ |
+| `openai` | gpt-image (`NITHAN_OPENAI_IMAGE_MODEL`) | `OPENAI_API_KEY` | คิดเงินตามภาพ |
 
 ```bash
-export GEMINI_API_KEY=...
+export CLOUDFLARE_ACCOUNT_ID=...   # dash.cloudflare.com → Workers AI
+export CLOUDFLARE_API_TOKEN=...    # API token ที่มีสิทธิ์ Workers AI
 nithan "ผีนางรำหลังโรงลิเก" --genre ghost --style dark-fantasy
 ```
 
-`--image auto|claude|gemini|openai` เลือกผู้วาดเอง (`auto` = ใช้คีย์ที่มี ถ้าไม่มีคีย์ใช้ Claude วาดเวกเตอร์)
-เมื่อมีคีย์ ลายเส้นการ์ตูนอื่น ๆ ก็จะวาดด้วยโมเดลภาพเช่นกัน ใส่ `--image claude` ถ้าอยากได้เวกเตอร์
+**ล็อกหน้าตัวละคร** — ก่อนวาดฉาก ระบบสร้าง "ภาพต้นแบบ" ของตัวละครแต่ละตัวไว้ที่ `characters/<id>.png`
+แล้วแนบภาพนั้นเป็น reference ให้โมเดลทุกฉากที่ตัวละครปรากฏ (สูงสุด 4 ตัวต่อฉาก) หน้าตา ทรงผม และชุดจึงตรงกันทุก shot
+`--continue` และปุ่ม "สร้างตอนต่อไป" ใช้ภาพต้นแบบชุดเดิมต่อ ตัวละครจึงหน้าเดิมทั้งซีรีส์
+ไม่ชอบหน้าไหน ลบไฟล์ใน `characters/` หรือวางรูปของคุณเองแทน (ชื่อไฟล์ตาม id ตัวละคร) แล้วสั่งวาดใหม่
+
+- `--image auto` (ค่าเริ่มต้น) เลือก cloudflare → gemini → openai ตามคีย์ที่มี ถ้าไม่มีเลยใช้ Claude วาดเวกเตอร์
+- เมื่อมีคีย์ ลายเส้นการ์ตูนอื่น ๆ ก็จะวาดด้วยโมเดลภาพเช่นกัน ใส่ `--image claude` ถ้าอยากได้เวกเตอร์
+- คุณภาพสูงขึ้นอีก: `NITHAN_CF_IMAGE_MODEL=@cf/black-forest-labs/flux-2-dev` · ขนาดภาพ: `NITHAN_IMAGE_SIZE=864x1536` · ปิดล็อกหน้า: `NITHAN_FACE_LOCK=0`
 
 ## ติดตั้ง
 

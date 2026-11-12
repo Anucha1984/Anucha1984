@@ -74,6 +74,7 @@ async function main() {
       return 2;
     }
     finalInput = continueInput(input, prev);
+    finalInput.refsDir = path.join(dir, 'characters'); // same faces as the previous episode
     // by default keep episodes of a series next to each other
     if (!input.outDir) finalInput.outDir = path.dirname(dir);
   }

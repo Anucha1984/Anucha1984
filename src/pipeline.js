@@ -65,7 +65,7 @@ export async function createVideo(input, onProgress) {
       );
     } else {
       const { generateArt } = await import('./engine/index.js');
-      await generateArt(sb, projectDir, { onProgress: pArt, model: opts.model, image: opts.image });
+      await generateArt(sb, projectDir, { onProgress: pArt, model: opts.model, image: opts.image, refsDir: opts.refsDir });
     }
     await saveStoryboard(sb, projectDir);
 

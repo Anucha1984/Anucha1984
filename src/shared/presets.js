@@ -200,6 +200,7 @@ export function resolveOptions(input = {}) {
     // series support: pass the previous episode's storyboard.series to continue the story
     series: input.series || null,
     model: input.model || null,
-    image: input.image || null, // auto | claude | gemini | openai (see engine/image.js)
+    image: input.image || null, // auto | claude | cloudflare | gemini | openai (see engine/image.js)
+    refsDir: input.refsDir || null, // previous episode's characters/ folder: reuse the same faces
   };
 }
