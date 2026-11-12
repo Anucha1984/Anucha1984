@@ -1,16 +1,20 @@
 # ไอเดียคลิป
 
-## รอบล่าสุด: 2026-11-12 (ข่าวช่วง 4–11 พ.ย. 2026)
+## รอบล่าสุด: 2026-11-13 (ข่าวและรีโพช่วง 6–12 พ.ย. 2026)
 
-ลำดับเรียงตามที่ทีมประเมินว่าคนไทยน่าจะสนใจ (เป็นการประเมิน ไม่ใช่ตัวเลขวัดจริง) รายละเอียดข่าวมาจากเว็บรวมข่าว ต้องตรวจกับประกาศต้นทางก่อนเขียนบท
+ลำดับเรียงตามที่ทีมประเมินว่าน่าสนใจ (เป็นการประเมิน ไม่ใช่ตัวเลขวัดจริง) ทุกข้อมาจากเว็บรวมข่าวหรือหน้ารวมรีโพ ยังไม่ได้เปิดประกาศต้นทางตรวจ ต้องตรวจก่อนเขียนบท ไม่ซ้ำกับหัวข้อในคิว
 
-1. **Gemini 4 Carbon มาแล้ว ทำอะไรได้ ใครได้ใช้** — Google เปิดให้ใช้ 10 พ.ย.; Gemini เป็นผู้ช่วย AI ที่ถูกค้นมากสุดในไทย
-2. **Images 2.6 ของ ChatGPT: 5 ท่าทำภาพที่คนไทยต้องลอง** — OpenAI เปิดตัว 4 พ.ย.; คนไทยใช้ AI ทำภาพสูงมาก
-3. **สัปดาห์เดียว AI ใหม่ 4 ค่าย สรุปใน 60 วิ** — Gemini 4 Carbon, Claude Fable 5.2, Muse Ember, GPT-6 Cyber
-4. **คนไทย 75% ใช้ AI แล้ว คุณอยู่กลุ่มไหน** — ตัวเลขจากการนำเสนอของ True (ส.ค. 2026) แยกตาม Gen
-5. **Meta Muse Agent คืออะไร ทำไมคนแห่ใช้** — เปิดตัว ก.ย. มีฟีเจอร์ Spaces/วิดีโอแชตใหม่; Muse Ember ออก 9 พ.ย.
-6. **Claude Fable 5.2 ออกใหม่ ต่างจากเดิมยังไง** — Anthropic เปิดตัว 9 พ.ย.
-7. **Agentic AI คืออะไร อธิบายแบบเด็ก ป.6 เข้าใจ** — คำที่ถูกพูดถึงมากในไทยปีนี้
-8. **AI จีนแจกฟรี: Kimi K3.1 Pro กับ DeepSeek** — Moonshot ปล่อยน้ำหนักโมเดล
-9. **GPT-6 Cyber: AI สายแฮกเกอร์ที่คนทั่วไปยังใช้ไม่ได้** — จำกัดเฉพาะลูกค้าที่อนุมัติ
-10. **เบื้องหลัง: คลิปนี้ไม่มีใครตัดต่อ ทำด้วย AI ยังไง** — ใช้ขั้นตอนจริงของโปรเจกต์นี้
+1. **Gemini 4 Carbon มาแล้ว ทำอะไรได้ ใครได้ใช้** — Google เปิดให้ใช้ 10 พ.ย. (แพ็กเกจจ่ายเงิน/นักพัฒนา) · ชนิดฉากที่เหมาะ: headline → bars → stack
+2. **Perplexity Teammates: AI เพื่อนร่วมงานที่ทำงานต่อเนื่องเอง** — เปิดตัวสัปดาห์นี้ · headline → steps → type
+3. **รีโพ agent-browser: ให้ AI คุมเบราว์เซอร์ด้วยคำสั่งเดียว** — Vercel Labs ติดเทรนด์รายสัปดาห์บน GitHub (+2,292 ดาวในสัปดาห์) · browser → code → ticker ★
+4. **รีโพ worktrunk: รัน AI เขียนโค้ดหลายตัวพร้อมกันไม่ให้ชนกัน** — ติดเทรนด์รายสัปดาห์บน GitHub · headline → code → steps
+5. **Images 2.6 ของ ChatGPT: 5 ท่าทำภาพที่ต้องลอง** — OpenAI เปิดตัว 4 พ.ย. · headline → stack → type
+6. **Meta Spaces: คุยและทำงานกับ Muse agents ในที่เดียว** — Meta เปิดตัวสัปดาห์นี้ · headline → pictogram → type
+7. **Spacefast: โฮสต์เว็บให้แอปที่ AI สร้าง** — Automattic ประกาศสัปดาห์นี้ · browser → steps → type
+8. **Google Tabletop: ห้องทำงานร่วมที่ AI สร้างเครื่องมือให้ทั้งกลุ่ม** — Google Labs ทดลองใหม่ · headline → browser → stack
+9. **รีโพ Orca: คุมฝูง coding agent จากจอเดียว** — ติดเทรนด์ (มาจากเว็บรวมรีโพเดียว ความน่าเชื่อถือต่ำกว่าข้ออื่น) · browser → code → bars
+10. **Anthropic เตรียมขายหุ้น IPO คืออะไร ผู้ใช้ AI ควรรู้อะไร** — Anthropic เปิด roadshow 10 พ.ย. (ข่าวธุรกิจ ไม่ใช่คำแนะนำลงทุน ต้องระวังถ้อยคำ) · ticker → stack → type
+
+ที่มา: [AI Agents News — Week of Nov 11, 2026](https://aiagentstore.ai/ai-agent-news/this-week) · [Anthropic Newsroom](https://www.anthropic.com/news) · [GitHub Trending (weekly)](https://github.com/trending?since=weekly) · [GitHub Weekly: AI Agent Tools (2–8 Nov 2026)](https://www.josedacruz.com/2026/11/11/github-weekly-ai-agent-tools-trending-right-now-november-2-november-8-2026/) · [The Neuron, 11 Nov 2026](https://theneuron.ai/digest/everything-that-happened-in-ai-today-wednesday-november-11-2026)
+
+หมายเหตุ: มุมข่าวคนไทยสัปดาห์นี้หาข่าวใหม่ที่ยืนยันได้ไม่เจอ (ข่าวไทยที่พบเป็นช่วงต้นถึงกลางปี)
