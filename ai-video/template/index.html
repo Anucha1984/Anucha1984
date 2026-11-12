@@ -6,6 +6,9 @@
 @font-face{font-family:K;font-weight:400;src:url(node_modules/@fontsource/kanit/files/kanit-latin-400-normal.woff2)}
 @font-face{font-family:K;font-weight:600;src:url(node_modules/@fontsource/kanit/files/kanit-latin-600-normal.woff2)}
 @font-face{font-family:K;font-weight:800;src:url(node_modules/@fontsource/kanit/files/kanit-latin-800-normal.woff2)}
+@font-face{font-family:M;font-weight:400;src:url(node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2)}
+@font-face{font-family:M;font-weight:700;src:url(node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-700-normal.woff2)}
+@font-face{font-family:M;font-weight:800;src:url(node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-800-normal.woff2)}
 *{box-sizing:border-box;margin:0}
 body{width:720px;height:1280px;overflow:hidden;background:#06060f;font-family:K;color:#fff}
 #bg,#fx,#st{position:absolute;inset:0}
@@ -17,6 +20,10 @@ body{width:720px;height:1280px;overflow:hidden;background:#06060f;font-family:K;
 .chip{display:inline-block;padding:10px 26px;border-radius:999px;font-weight:600;font-size:34px;margin:8px}
 .en{font-size:46px;font-weight:800;color:#f2c45a;margin:0 .22em}
 .sub{position:absolute;left:40px;width:640px;top:835px;text-align:center;font-size:34px;font-weight:600;line-height:1.5;text-shadow:0 3px 10px #000,0 0 3px #000}
+.mono{font-family:M,K,monospace}
+.y{color:var(--acc,#f2c45a)}
+.sub.center{font-size:50px;font-weight:800;line-height:1.28;text-shadow:none}
+.sub.center .en{font-size:60px;color:var(--acc)}
 .pill{background:rgba(6,8,26,.62);padding:3px 18px;border-radius:18px;line-height:1.95;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 </style>
 <div id="bg"></div><canvas id="fx" width="720" height="1280"></canvas><div id="st"></div>
@@ -37,9 +44,12 @@ const PRESETS={
   'tech-grid': {bg:'grid',  cam:['drift'],         trans:['slide','fade'],  enter:'rise',   layout:'left',   deco:['corners','sweep'], sub:'plain'},
   cinematic:   {bg:'bokeh', cam:['push','drift'],  trans:['zoom','iris'],   enter:'blur',   layout:'center', deco:['sweep'],           sub:'pill'},
   'bold-pop':  {bg:'stars', cam:['pan'],           trans:['wipe','slide'],  enter:'spring', layout:'band',   deco:['burst','sweep'],   sub:'pill'},
+  'dev-mono':  {bg:'flat',  cam:['none'],          trans:['cut','cut','swipe'], enter:'spring', layout:'left', deco:[], sub:'center', subTop:660},
   'neon-flash':{bg:'rings', cam:['drift','push'],  trans:['flash','zoom'],  enter:'spring', layout:'left',   deco:['corners','burst'], sub:'plain'}
 };
-const ROTATION=['tech-grid','cinematic','bold-pop','neon-flash'];
+const ROTATION=['tech-grid','cinematic','bold-pop','neon-flash','dev-mono'];
+const PAL={bg:'#0f1115',card:'#171b22',line:'#2a313c',acc:'#ffd60a',txt:'#ffffff',dim:'#8b94a3',red:'#ff5a5f',grn:'#3ddc84'};
+document.documentElement.style.setProperty('--acc',PAL.acc);
 function hash(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
 function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const SLUG=window.STYLE_SEED||'000-default';
@@ -145,7 +155,7 @@ function cta(s,lt){
 }
 const EN=[['แชตจีพีที','ChatGPT'],['เจมิไน','Gemini'],['กูเกิลด็อกส์','Google Docs'],['กูเกิล','Google'],['จีเมล','Gmail'],['ไดรฟ์','Drive'],['คล็อด','Claude'],['แคนวา','Canva'],['ดีปซีก','DeepSeek'],['เอไอ','AI']];
 if(window.EN_EXTRA)EN.push(...window.EN_EXTRA);EN.sort((a,b)=>b[0].length-a[0].length);
-function subHtml(t){let o=t;EN.forEach(([th,en],i)=>{o=o.split(th).join('\u0001'+i+'\u0002')});return o.replace(/\u0001(\d+)\u0002/g,(m,i)=>`<span class="en">${EN[+i][1]}</span>`)}
+function subHtml(t){let o=t.replace(/\*(.+?)\*/g,'\u0003$1\u0004');EN.forEach(([th,en],i)=>{o=o.split(th).join('\u0001'+i+'\u0002')});return o.replace(/\u0001(\d+)\u0002/g,(m,i)=>`<span class="en">${EN[+i][1]}</span>`).replace(/\u0003/g,'<span class="y">').replace(/\u0004/g,'</span>')}
 const R={hook,tool,sum,cta};
 
 /* ───────── camera, transitions ───────── */
@@ -160,7 +170,9 @@ function camCss(s,idx,lt){
 const TD=.28;
 function trans(type,c,isIn,col){
   const e=ss(c);let css='',ov='';
-  if(type==='fade')css=`opacity:${(1-e).toFixed(3)};`;
+  if(type==='cut')css='';
+  else if(type==='swipe')css=`opacity:${(1-e).toFixed(3)};transform:translateY(${((isIn?1:-1)*e*70).toFixed(1)}px);`;
+  else if(type==='fade')css=`opacity:${(1-e).toFixed(3)};`;
   else if(type==='slide')css=`opacity:${(1-e*.9).toFixed(3)};transform:translateX(${((isIn?1:-1)*e*150).toFixed(1)}px);`;
   else if(type==='zoom')css=`opacity:${(1-e).toFixed(3)};transform:scale(${(isIn?1-.08*e:1+.12*e).toFixed(4)});`;
   else if(type==='iris')css=`clip-path:circle(${((1-e)*1100).toFixed(1)}px at 50% 38%);`;
@@ -181,6 +193,7 @@ function drawStars(t,a){stars.forEach(o=>{ctx.globalAlpha=a*(.25+.45*(.5+.5*Math
 function drawBg(t,s){
   const col=s.color;
   if(ST.bg==='stars')drawStars(t,1);
+  else if(ST.bg==='flat'){ctx.fillStyle='#fff';ctx.globalAlpha=.07;for(let x=30;x<720;x+=60)for(let y=30;y<1280;y+=60){ctx.beginPath();ctx.arc(x,y,1.3,0,7);ctx.fill()}}
   else if(ST.bg==='grid'){
     drawStars(t,.45);
     ctx.strokeStyle=col;ctx.lineWidth=1.6;const vy=720;
@@ -215,13 +228,15 @@ window.renderAt=function(t){
   const idx=SCENES.findIndex(x=>t>=x.t0&&t<x.t0+x.dur), s=SCENES[idx], lt=t-s.t0;
   let si=0;while(si<s.subs.length-1&&lt>=s.pt[si+1])si++;
   const body=header(s,lt)+R[s.id](s,lt);           // tool() also records s._py for the burst effect
-  document.getElementById('bg').style.background=`radial-gradient(520px 420px at 50% 34%, ${hexa(s.color,.34)}, transparent 70%), linear-gradient(#0a0d24,#05050d)`;
+  document.getElementById('bg').style.background=ST.bg==='flat'?`radial-gradient(640px 520px at 50% 18%, #1a202b, transparent 72%), ${PAL.bg}`:`radial-gradient(520px 420px at 50% 34%, ${hexa(s.color,.34)}, transparent 70%), linear-gradient(#0a0d24,#05050d)`;
   ctx.clearRect(0,0,720,1280);drawBg(t,s);drawDeco(t,lt,s);
   const cIn=idx>0?1-cl(lt/TD):0, cOut=idx<NS-1?1-cl((s.dur-lt)/TD):0;
   const tr=cIn>cOut?trans(TR[idx-1],cIn,true,s.color):cOut>0?trans(TR[idx],cOut,false,SCENES[idx+1].color):{css:'',ov:''};
   document.getElementById('st').innerHTML=
    `<div class="fill" style="${camCss(s,idx,lt)}"><div class="fill" style="${tr.css}">${body}</div></div>`+tr.ov
    +`<div class="abs" style="left:40px;top:76px;width:640px;height:4px;background:#ffffff26;border-radius:2px"><div style="width:${(t/TOTAL*100).toFixed(2)}%;height:100%;background:#f2c45a;border-radius:2px"></div></div>`
-   +`<div class="sub" style="${pop(lt,s.pt[si],.16)}"><span class="${ST.sub==='pill'?'pill':''}">${subHtml(s.subs[si])}</span></div>`;
+   +(ST.sub==='center'?`<div class="sub center" style="top:${ST.subTop||660}px;font-size:${(L=>L>28?38:L>20?44:50)(s.subs[si].replace(/\*/g,'').length)}px;${pop(lt,s.pt[si],.16)}">${subHtml(s.subs[si])}</div>`
+      :`<div class="sub" style="${pop(lt,s.pt[si],.16)}"><span class="${ST.sub==='pill'?'pill':''}">${subHtml(s.subs[si])}</span></div>`);
 };
 </script>
+<script src="scenetypes.js"></script>

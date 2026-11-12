@@ -3,7 +3,7 @@ import numpy as np
 SR=44100
 src=open('scenes.js').read()
 durs=[float(x) for x in re.findall(r"dur:([0-9.]+)",src)]
-subs=[json.loads('['+m+']') for m in re.findall(r"subs:\[(.*?)\]",src)]
+subs=[[x.replace('*','') for x in json.loads('['+m+']')] for m in re.findall(r"subs:\[(.*?)\]",src)]
 N=len(durs); rng=np.random.default_rng(3)
 def load(i):
     f=f'vo/{i}.mp3'
