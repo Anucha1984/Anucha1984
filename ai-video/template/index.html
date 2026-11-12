@@ -37,22 +37,22 @@ function hexa(h,a){const n=parseInt(h.slice(1),16);return`rgba(${n>>16},${n>>8&2
 const ph=(s,i,f=0)=>s.pt[i]+f*(s.pt[i+1]-s.pt[i]);
 
 function header(s,lt){
-  const lab=s.id==='tool'?`อันดับ ${s.rank}/5`:s.chip;
+  const NT=SCENES.filter(x=>x.id==='tool').length;const lab=s.id==='tool'?`${s.label||'อันดับ'} ${s.rank}/${NT}`:s.chip;
   return lab?`<div class="abs" style="left:40px;top:92px;background:${s.color};color:#fff;font-size:22px;font-weight:600;padding:3px 16px;border-radius:999px;${pop(lt,0.05)}transform-origin:left center">${lab}</div>`:'';
 }
 function hook(s,lt){
   const cols=SCENES.filter(x=>x.id==='tool');
-  let h=`<div class="c gold" style="top:150px;font-size:150px;font-weight:800;line-height:1.1;transform:scale(${(1+.04*Math.sin(lt*3)).toFixed(3)})">AI 5 ตัว</div>
-  <div class="c" style="top:330px;font-size:50px;font-weight:800;${rise(lt,ph(s,1),.3)}">ที่คนทั้งโลก<span class="gold">ใช้เยอะที่สุด</span></div>
+  let h=`<div class="c gold" style="top:150px;font-size:${s.titleSize||150}px;font-weight:800;line-height:1.1;white-space:nowrap;transform:scale(${(1+.04*Math.sin(lt*3)).toFixed(3)})">${s.title||'AI 5 ตัว'}</div>
+  <div class="c" style="top:330px;font-size:50px;font-weight:800;${rise(lt,ph(s,1),.3)}">${s.line||'ที่คนทั้งโลก<span class="gold">ใช้เยอะที่สุด</span>'}</div>
   <div class="c" style="top:450px">`;
   cols.forEach((c,i)=>{h+=`<div style="display:inline-block;width:104px;height:104px;margin:0 8px;border-radius:24px;background:${c.color};font-size:64px;font-weight:800;line-height:104px;box-shadow:0 8px 30px ${hexa(c.color,.5)};${pop(lt,ph(s,2,i*.18))}">${i+1}</div>`});
-  h+=`</div><div class="c" style="top:610px;font-size:46px;font-weight:800;${pop(lt,ph(s,3,.5))}"><span style="background:#f3ead8;color:#151a35;padding:8px 26px;border-radius:14px">งานไหน → ใช้ตัวไหน?</span></div>`;
+  h+=`</div><div class="c" style="top:610px;font-size:46px;font-weight:800;${pop(lt,ph(s,3,.5))}"><span style="background:#f3ead8;color:#151a35;padding:8px 26px;border-radius:14px">${s.box||'งานไหน → ใช้ตัวไหน?'}</span></div>`;
   return h;
 }
 function tool(s,lt){
   let h=`<div class="abs" style="left:40px;top:140px;width:120px;height:120px;border-radius:60px;background:${s.color};border:5px solid #fff;font-size:76px;font-weight:800;text-align:center;line-height:108px;${pop(lt,0)}">${s.rank}</div>
-  <div class="abs" style="left:184px;top:128px;font-size:76px;font-weight:800;line-height:1.25;white-space:nowrap;${rise(lt,.08,.3)}">${s.en.split(' ')[0]}</div>
-  <div class="abs" style="left:188px;top:232px;font-size:28px;font-weight:600;color:${s.color};${rise(lt,.2,.3)}">${s.th}${s.en.includes('Google')?' · Google':''}</div>`;
+  <div class="abs" style="left:184px;top:128px;font-size:${s.bigSize||76}px;font-weight:800;line-height:1.25;white-space:nowrap;${rise(lt,.08,.3)}">${s.big||s.en.split(' ')[0]}</div>
+  <div class="abs" style="left:188px;top:232px;font-size:28px;font-weight:600;color:${s.color};${rise(lt,.2,.3)}">${s.small||(s.th+(s.en.includes('Google')?' · Google':''))}</div>`;
   let y=320;
   if(s.stat){
     const tn=ph(s,s.stat.numPh), k=eo((lt-tn)/1.1), n=Math.round(5320*k);
@@ -69,26 +69,28 @@ function tool(s,lt){
   <div class="abs" style="left:32px;top:${y+46}px;width:660px">`;
   s.chips.forEach(c=>{h+=`<span class="chip" style="${s.stat?'font-size:28px;padding:8px 20px;margin:6px;':''}background:${hexa(s.color,.22)};border:2px solid ${s.color};${pop(lt,ph(s,c.ph,c.f))}">${c.t}</span>`});
   h+=`</div>`;
+  if(s.src)h+=`<div class="abs" style="left:188px;top:276px;font-size:18px;color:#8f97b8;${rise(lt,ph(s,s.chipLabelPh)+.3)}">ที่มา: ${s.src}</div>`;
   const py=s.stat?748:y+250;
   h+=`<div class="c" style="top:${py}px;${pop(lt,ph(s,s.punch.ph))}"><span style="display:inline-block;background:#f3ead8;color:#151a35;font-size:${s.stat?36:42}px;font-weight:800;padding:${s.stat?6:12}px 28px;border-radius:16px;border-bottom:5px solid ${s.color}">${s.punch.t}</span></div>`;
   return h;
 }
 function sum(s,lt){
-  let h=`<div class="c gold" style="top:128px;font-size:62px;font-weight:800;${pop(lt,0)}">งานไหน ใช้ตัวไหน</div>
+  let h=`<div class="c gold" style="top:128px;font-size:62px;font-weight:800;${pop(lt,0)}">${s.title||'งานไหน ใช้ตัวไหน'}</div>
   <div class="c" style="top:222px;${pop(lt,ph(s,0,.45))}"><span style="background:#e2334a;font-size:26px;font-weight:600;padding:4px 18px;border-radius:8px;display:inline-block;transform:rotate(-3deg)">📸 แคปหน้าจอไว้เลย</span></div>`;
   s.rows.forEach((r,i)=>{const t0=ph(s,i+1), cur=lt>=t0&&lt<s.pt[i+2];
     h+=`<div class="abs" style="left:40px;top:${290+i*102}px;width:640px;height:88px;border-radius:16px;background:${hexa(r[2],cur?.38:.18)};border:2px solid ${r[2]};${rise(lt,t0,.35)}">
       <div class="abs" style="left:22px;top:24px;font-size:27px;font-weight:600;white-space:nowrap">${r[0]}</div>
-      <div class="abs" style="right:18px;top:12px;background:${r[2]};font-size:42px;font-weight:800;padding:0 22px;border-radius:999px;${pop(lt,t0+.35)}">${r[1]}</div></div>`});
+      <div class="abs" style="right:18px;top:12px;background:${r[2]};font-size:${s.badgeSize||42}px;font-weight:800;padding:0 22px;border-radius:999px;${pop(lt,t0+.35)}">${r[1]}</div></div>`});
   return h;
 }
 function cta(s,lt){
-  return `<div class="c" style="top:190px;font-size:64px;font-weight:800;line-height:1.3;${pop(lt,0)}">อย่าใช้ AI<br><span class="gold">แค่ตัวเดียว</span></div>
+  return `<div class="c" style="top:190px;font-size:64px;font-weight:800;line-height:1.3;${pop(lt,0)}">${s.head||'อย่าใช้ AI<br><span class="gold">แค่ตัวเดียว</span>'}</div>
   <div class="abs" style="left:70px;top:470px;width:270px;height:120px;border-radius:20px;background:#f2c45a;color:#151a35;font-size:56px;font-weight:800;text-align:center;line-height:120px;${pop(lt,ph(s,0))}">🔖 เซฟ</div>
   <div class="abs" style="left:380px;top:470px;width:270px;height:120px;border-radius:20px;background:#e2334a;font-size:56px;font-weight:800;text-align:center;line-height:120px;${pop(lt,ph(s,1))}">↗ แชร์</div>
-  <div class="c" style="top:640px;font-size:34px;font-weight:600;color:#cdd3ee;${rise(lt,ph(s,2))}">ให้เพื่อนที่ยังใช้ AI อยู่ตัวเดียว</div>`;
+  <div class="c" style="top:640px;font-size:34px;font-weight:600;color:#cdd3ee;${rise(lt,ph(s,2))}">${s.foot||'ให้เพื่อนที่ยังใช้ AI อยู่ตัวเดียว'}</div>`;
 }
 const EN=[['แชตจีพีที','ChatGPT'],['เจมิไน','Gemini'],['กูเกิลด็อกส์','Google Docs'],['กูเกิล','Google'],['จีเมล','Gmail'],['ไดรฟ์','Drive'],['คล็อด','Claude'],['แคนวา','Canva'],['ดีปซีก','DeepSeek'],['เอไอ','AI']];
+if(window.EN_EXTRA)EN.push(...window.EN_EXTRA);EN.sort((a,b)=>b[0].length-a[0].length);
 function subHtml(t){let o=t;EN.forEach(([th,en],i)=>{o=o.split(th).join('\u0001'+i+'\u0002')});return o.replace(/\u0001(\d+)\u0002/g,(m,i)=>`<span class="en">${EN[+i][1]}</span>`)}
 const R={hook,tool,sum,cta};
 const ctx=document.getElementById('fx').getContext('2d');
