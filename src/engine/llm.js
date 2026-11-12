@@ -1,12 +1,12 @@
 // Small Claude client with two backends, auto-selected:
 //   1. API  — @anthropic-ai/sdk, when ANTHROPIC_API_KEY is set (streaming).
 //   2. CLI  — `claude -p --output-format json` (Claude Code, already logged in), prompt via stdin.
-// Force one with NITHAN_LLM=api|cli. Model: opts.model > NITHAN_MODEL > default.
+// Force one with NITHAN_LLM=api|cli. Model: opts.model > NITHAN_MODEL > default (claude-sonnet-5-5).
 import { spawn } from 'node:child_process';
 import os from 'node:os';
 
-/** Most capable current model; used by the API backend unless overridden. */
-export const DEFAULT_MODEL = 'claude-fable-5-2';
+/** Default for both backends (fast and cheap enough for many scene calls). Override: opts.model, NITHAN_MODEL, --model. */
+export const DEFAULT_MODEL = 'claude-sonnet-5-5';
 const DEFAULT_TIMEOUT_MS = Number(process.env.NITHAN_TIMEOUT_MS) || 8 * 60 * 1000;
 // Models whose safety classifiers can return stop_reason "refusal" and that accept server-side fallbacks.
 const FALLBACK_CAPABLE = /^claude-(fable-5-[12]|opus-5(-5)?|sonnet-5-5)$/;
@@ -111,8 +111,7 @@ export function buildCliArgs({ system, model, effort } = {}) {
   ];
   // Replace Claude Code's own system prompt entirely: we want a writer/illustrator, not a coding agent.
   args.push('--system-prompt', system || 'You are a helpful assistant.');
-  const m = resolveModel(model);
-  if (m) args.push('--model', m); // otherwise the CLI's configured default model
+  args.push('--model', resolveModel(model) || DEFAULT_MODEL);
   if (EFFORTS.includes(effort)) args.push('--effort', effort);
   return args;
 }

@@ -64,6 +64,8 @@ npm link                          # ให้เรียกคำสั่ง `
 1. ตั้ง `ANTHROPIC_API_KEY` → ใช้ Claude API โดยตรง
 2. ไม่ได้ตั้ง → ใช้ Claude Code CLI (`claude -p`) ที่ล็อกอินไว้ในเครื่อง
 
+โมเดลเริ่มต้นคือ **Claude Sonnet** (`claude-sonnet-5-5`) เปลี่ยนได้ด้วย `--model` หรือ `NITHAN_MODEL=...`
+
 ## ใช้งาน
 
 ```bash
