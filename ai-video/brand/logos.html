@@ -85,5 +85,6 @@ body{background:#222}
   <div class="c" style="top:880px;font-size:52px;font-weight:700;letter-spacing:8px;color:#8b94a3">AISaS.AI</div>
 </div>
 <script>
-const q=new URLSearchParams(location.search).get('l')||'1';document.getElementById('l'+q).classList.add('on');
+const P=new URLSearchParams(location.search);const W=P.get('w');if(W){const wk=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);const ns=[];while(wk.nextNode())ns.push(wk.currentNode);ns.forEach(n=>{n.nodeValue=n.nodeValue.replace(/ไอ้สัส/g,W)})}
+const q=P.get('l')||'1';document.getElementById('l'+q).classList.add('on');
 </script>
