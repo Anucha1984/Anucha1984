@@ -42,6 +42,7 @@
 | `stack` | ตารางสรุปที่เด้งทีละแถว | `title, rows:[{k,v,ph,c}], src, srcPh` |
 | `browser` | แนะนำเว็บ/รีโพ (หน้าต่างเบราว์เซอร์ในกรอบไล่สี) | `url, page:{title,tag,lines,ph,focusTop}` |
 | `code` | โค้ด/เทอร์มินัล/เออร์เรอร์ | `file, lines:[{t,c:'red'/'grn'/'acc',ph}]` |
+| `compare` | เทียบสองฝั่ง (A vs B) การ์ดคู่ | `title, left/right:{title,sub,ph,hi,items:[{t,ph}]}, src` |
 | `type` | ปิดคลิป "คอมเมนต์ ＿＿" ช่องพิมพ์ + ชวนแชร์ | `lead,key,note,share,keyPh,notePh` |
 | `hook`,`tool`,`sum`,`cta` | ฉากแบบเดิม (การ์ดเรืองแสง) | ดู `episodes/001-top5-ai` |
 

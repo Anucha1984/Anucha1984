@@ -52,9 +52,10 @@ function bars(s,lt){
 function pictogram(s,lt){
   const P=s.pic, N=P.total||10, on=Math.round(P.pct/100*N), t0=ph(s,P.ph), cols=5, rows=Math.ceil(N/cols);
   let h=`<div class="c" style="top:120px;font-size:34px;font-weight:700;color:${PAL.dim};${rise(lt,0)}">${s.kicker}</div>`;
+  const tight=rows>2, step=tight?74:96, d=tight?54:64;   // 3+ rows: smaller dots so the number never reaches the caption
   for(let i=0;i<N;i++){const r=Math.floor(i/cols), c=i%cols, lit=i<on, ti=lit?t0+i*.13:0;
-    h+=`<div class="abs" style="left:${148+c*90}px;top:${200+r*96}px;width:64px;height:64px;border-radius:32px;background:${lit&&lt>=ti?PAL.acc:PAL.line};${lit?pop(lt,ti,.25):'opacity:1;'}"></div>`;}
-  const by=200+rows*96+24;
+    h+=`<div class="abs" style="left:${360-(cols*step-(step-d))/2+c*step}px;top:${190+r*step}px;width:${d}px;height:${d}px;border-radius:${d/2}px;background:${lit&&lt>=ti?PAL.acc:PAL.line};${lit?pop(lt,ti,.25):'opacity:1;'}"></div>`;}
+  const by=190+rows*step+14;
   h+=`<div class="c" style="${MONO}top:${by}px;font-size:84px;font-weight:800;color:${PAL.acc};${pop(lt,ph(s,P.bigPh??P.ph+1))}">${P.big}</div>`;
   if(P.src)h+=`<div class="c" style="top:${by+104}px;font-size:19px;color:${PAL.dim};${rise(lt,ph(s,P.bigPh??P.ph+1)+.2)}">ที่มา: ${P.src}</div>`;
   return h;
@@ -121,6 +122,20 @@ function type(s,lt){
   ${s.share?`<div class="c" style="top:520px;font-size:34px;font-weight:700;${rise(lt,tn+.3)}">${s.share}</div>`:''}`;
 }
 
+
+/* compare — two side-by-side cards (e.g. product A vs B).
+   s.title, s.left/s.right={title,sub,ph,hi,items:[{t,ph}]}, [s.src] */
+function compare(s,lt){
+  let h=`<div class="c" style="top:100px;font-size:46px;font-weight:800;${pop(lt,0)}">${s.title}</div>`;
+  [s.left,s.right].forEach((c,i)=>{
+    h+=`<div class="abs" style="left:${40+i*330}px;top:190px;width:310px;${card('padding:20px 18px;min-height:340px;')}${c.hi?`border-color:${PAL.acc};`:''}${pop(lt,ph(s,c.ph))}">
+      <div style="${MONO}font-size:28px;font-weight:800;text-align:center;color:${c.hi?PAL.acc:PAL.txt}">${c.title}</div>
+      <div style="font-size:22px;color:${PAL.dim};text-align:center;margin:6px 0 14px">${c.sub||''}</div>`
+      +c.items.map(it=>`<div style="font-size:25px;font-weight:600;padding:10px 0;border-top:1px solid ${PAL.line};${rise(lt,ph(s,it.ph),.3)}">${it.t}</div>`).join('')+`</div>`;});
+  if(s.src)h+=`<div class="c" style="top:546px;font-size:19px;color:${PAL.dim};${rise(lt,ph(s,s.right.ph)+.3)}">ที่มา: ${s.src}</div>`;
+  return h;
+}
+
 const SHIFT=46; // keep clear of TikTok's top search bar
-[['headline',headline],['ticker',ticker],['bars',bars],['pictogram',pictogram],['steps',steps],['stack',stack],['browser',browser],['code',code],['type',type]]
+[['headline',headline],['ticker',ticker],['bars',bars],['pictogram',pictogram],['steps',steps],['stack',stack],['browser',browser],['code',code],['type',type],['compare',compare]]
   .forEach(([k,f])=>{R[k]=(s,lt)=>`<div class="fill" style="transform:translateY(${SHIFT}px)">${f(s,lt)}</div>`});
