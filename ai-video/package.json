@@ -1,1 +1,1 @@
-{"name":"ai-video","private":true,"dependencies":{"@fontsource/jetbrains-mono":"^5.3.0","@fontsource/kanit":"^5.0.0"}}
+{"name":"ai-video","private":true,"dependencies":{"@fontsource/chakra-petch":"^5.3.0","@fontsource/jetbrains-mono":"^5.3.0","@fontsource/kanit":"^5.0.0","@fontsource/mitr":"^5.3.0"}}

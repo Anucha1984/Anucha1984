@@ -1,0 +1,89 @@
+<!doctype html><meta charset="utf-8">
+<style>
+@font-face{font-family:Kn;font-weight:800;src:url(../node_modules/@fontsource/kanit/files/kanit-thai-800-normal.woff2);unicode-range:U+0E00-0E7F}
+@font-face{font-family:Kn;font-weight:800;src:url(../node_modules/@fontsource/kanit/files/kanit-latin-800-normal.woff2)}
+@font-face{font-family:Kn;font-weight:600;src:url(../node_modules/@fontsource/kanit/files/kanit-thai-600-normal.woff2);unicode-range:U+0E00-0E7F}
+@font-face{font-family:Kn;font-weight:600;src:url(../node_modules/@fontsource/kanit/files/kanit-latin-600-normal.woff2)}
+@font-face{font-family:Mi;font-weight:700;src:url(../node_modules/@fontsource/mitr/files/mitr-thai-700-normal.woff2);unicode-range:U+0E00-0E7F}
+@font-face{font-family:Mi;font-weight:700;src:url(../node_modules/@fontsource/mitr/files/mitr-latin-700-normal.woff2)}
+@font-face{font-family:Ck;font-weight:700;src:url(../node_modules/@fontsource/chakra-petch/files/chakra-petch-thai-700-normal.woff2);unicode-range:U+0E00-0E7F}
+@font-face{font-family:Ck;font-weight:700;src:url(../node_modules/@fontsource/chakra-petch/files/chakra-petch-latin-700-normal.woff2)}
+@font-face{font-family:Mo;font-weight:800;src:url(../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-800-normal.woff2)}
+@font-face{font-family:Mo;font-weight:400;src:url(../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#222}
+.L{position:absolute;left:0;top:0;width:1000px;height:1000px;overflow:hidden;display:none}
+.on{display:block}
+.c{position:absolute;left:0;width:1000px;text-align:center}
+</style>
+
+<!-- 1. BLOCK: flat black, big Thai wordmark + yellow AI block -->
+<div class="L" id="l1" style="background:#0f1115;font-family:Kn">
+  <div class="c" style="top:170px;font-size:300px;font-weight:800;line-height:1.1;color:#fff;letter-spacing:-6px">ไอ้สัส</div>
+  <div class="abs" style="position:absolute;left:300px;top:520px;width:400px;height:250px;background:#ffd60a;border-radius:36px;display:flex;align-items:center;justify-content:center;font-size:230px;font-weight:800;color:#0f1115;line-height:1">AI</div>
+  <div class="c" style="top:810px;font-family:Mo;font-size:56px;font-weight:800;letter-spacing:4px;color:#ffd60a">AISaS.AI</div>
+</div>
+
+<!-- 2. TERMINAL -->
+<div class="L" id="l2" style="background:#0a0d12;font-family:Kn">
+  <div style="position:absolute;left:80px;top:230px;width:840px;height:540px;background:#161b22;border:3px solid #30363d;border-radius:30px;overflow:hidden">
+    <div style="height:76px;background:#1f2630;display:flex;align-items:center;padding:0 30px;gap:16px"><i style="width:22px;height:22px;border-radius:11px;background:#ff5f57"></i><i style="width:22px;height:22px;border-radius:11px;background:#febc2e"></i><i style="width:22px;height:22px;border-radius:11px;background:#28c840"></i><span style="font-family:Mo;font-size:26px;color:#8b94a3;margin-left:16px">aisas.ai — zsh</span></div>
+    <div style="padding:46px 50px;font-family:Mo;font-size:46px;color:#8b94a3;line-height:1.5">
+      <div><span style="color:#3ddc84">$</span> เปิด AI</div>
+      <div style="font-family:Kn;font-weight:800;font-size:128px;color:#fff;line-height:1.25;margin-top:16px">ไอ้สัส<span style="color:#ffd60a">.ai</span><span style="color:#ffd60a;font-family:Mo">▌</span></div>
+      <div style="font-family:Kn;font-size:38px;font-weight:600;color:#8b94a3;margin-top:10px">&gt; สอนใช้ AI · เล่าข่าว AI</div>
+    </div>
+  </div>
+  <div class="c" style="top:830px;font-family:Mo;font-size:52px;font-weight:800;letter-spacing:6px;color:#ffd60a">AISaS.AI</div>
+</div>
+
+<!-- 3. COMIC SHOUT -->
+<div class="L" id="l3" style="background:#ffd60a;font-family:Mi">
+  <div style="position:absolute;inset:0;background-image:radial-gradient(#e6b800 5px,transparent 6px);background-size:34px 34px"></div>
+  <svg style="position:absolute;left:0;top:0;transform:translateY(-55px) scale(.9);transform-origin:500px 500px" width="1000" height="1000" viewBox="0 0 1000 1000"><polygon fill="#ff3b30" stroke="#111" stroke-width="12" stroke-linejoin="round" points="500,70 575,190 700,120 710,260 860,250 800,380 930,450 800,530 880,670 730,670 700,830 580,740 500,900 420,740 300,830 270,670 120,670 200,530 70,450 200,380 140,250 290,260 300,120 425,190"/></svg>
+  <div class="c" style="top:310px;font-size:240px;font-weight:700;line-height:1;color:#fff;-webkit-text-stroke:22px #111;paint-order:stroke fill;transform:rotate(-6deg);letter-spacing:-4px">ไอ้สัส!</div>
+  <div style="position:absolute;left:660px;top:560px;width:230px;height:170px;background:#111;border-radius:26px;color:#ffd60a;font-size:140px;font-weight:700;display:flex;align-items:center;justify-content:center;transform:rotate(7deg);font-family:Mi">AI</div>
+  <div class="c" style="top:872px;font-family:Mi;font-size:64px;font-weight:700;color:#111;letter-spacing:5px">AISaS.AI</div>
+</div>
+
+<!-- 4. ROBOT -->
+<div class="L" id="l4" style="background:radial-gradient(circle at 50% 35%,#24305e,#0b1022 70%);font-family:Kn">
+  <svg style="position:absolute;left:300px;top:70px" width="400" height="380" viewBox="0 0 400 380">
+    <line x1="200" y1="20" x2="200" y2="70" stroke="#ffd60a" stroke-width="12" stroke-linecap="round"/><circle cx="200" cy="20" r="18" fill="#ff3b30"/>
+    <rect x="30" y="70" width="340" height="270" rx="70" fill="#e8ecf3" stroke="#111" stroke-width="10"/>
+    <rect x="70" y="120" width="260" height="110" rx="40" fill="#10162b"/>
+    <polygon points="95,150 175,172 165,200 95,190" fill="#ffd60a"/><polygon points="305,150 225,172 235,200 305,190" fill="#ffd60a"/>
+    <path d="M120 270 Q200 340 280 270 Q200 296 120 270Z" fill="#10162b" stroke="#111" stroke-width="6"/>
+    <rect x="165" y="275" width="70" height="14" fill="#fff"/>
+    <rect x="5" y="170" width="28" height="80" rx="12" fill="#ffd60a" stroke="#111" stroke-width="8"/><rect x="367" y="170" width="28" height="80" rx="12" fill="#ffd60a" stroke="#111" stroke-width="8"/>
+  </svg>
+  <div class="c" style="top:470px;font-size:228px;font-weight:800;line-height:1.15;color:#fff">ไอ้สัส<span style="color:#ffd60a">AI</span></div>
+  <div class="c" style="top:810px;font-family:Mo;font-size:54px;font-weight:800;letter-spacing:5px;color:#8fb3ff">AISaS.AI</div>
+</div>
+
+<!-- 5. STAMP -->
+<div class="L" id="l5" style="background:#f2e7cf;font-family:Mi">
+  <svg width="1000" height="1000" viewBox="0 0 1000 1000" style="position:absolute;left:0;top:0">
+    <defs>
+      <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.6 2.55" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in"/></filter>
+      <path id="ring" d="M500,500 m-340,0 a340,340 0 1,1 680,0 a340,340 0 1,1 -680,0"/>
+    </defs>
+    <g filter="url(#rough)" transform="rotate(-8 500 500)" fill="#d62d20" stroke="#d62d20">
+      <circle cx="500" cy="500" r="430" fill="none" stroke-width="28"/><circle cx="500" cy="500" r="268" fill="none" stroke-width="10"/>
+      <text font-family="Mi" font-weight="700" font-size="62" letter-spacing="9" stroke="none"><textPath href="#ring" startOffset="2%">AISaS.AI ★ สอนใช้ AI ★ เล่าข่าว AI ★ AISaS.AI ★</textPath></text>
+      <text x="500" y="520" text-anchor="middle" font-family="Mi" font-weight="700" font-size="170" stroke="none">ไอ้สัส</text>
+      <text x="500" y="660" text-anchor="middle" font-family="Mi" font-weight="700" font-size="150" stroke="none">AI</text>
+    </g>
+  </svg>
+</div>
+
+<!-- 6. CENSOR TAPE -->
+<div class="L" id="l6" style="background:#101010;font-family:Ck">
+  <div class="c" style="top:200px;font-size:310px;font-weight:700;line-height:1.1;color:#fff">ไอ้สัส</div>
+  <div style="position:absolute;left:-60px;top:410px;width:1120px;height:150px;transform:rotate(-7deg);background:repeating-linear-gradient(-45deg,#ffd60a 0 40px,#111 40px 80px);border-top:8px solid #111;border-bottom:8px solid #111;display:flex;align-items:center;justify-content:center"><span style="background:#111;color:#ffd60a;font-size:92px;font-weight:700;padding:0 36px;letter-spacing:10px">BEEP</span></div>
+  <div class="c" style="top:600px;font-size:250px;font-weight:700;line-height:1;color:transparent;-webkit-text-stroke:8px #ffd60a">.AI</div>
+  <div class="c" style="top:880px;font-size:52px;font-weight:700;letter-spacing:8px;color:#8b94a3">AISaS.AI</div>
+</div>
+<script>
+const q=new URLSearchParams(location.search).get('l')||'1';document.getElementById('l'+q).classList.add('on');
+</script>
